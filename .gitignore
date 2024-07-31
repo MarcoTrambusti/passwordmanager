@@ -1,0 +1,34 @@
+# Eclipse specific files
+.project
+.classpath
+.settings/
+
+# Maven specific files
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Eclipse-specific files
+.metadata/
+bin/
+tmp/
+
+# macOS specific files
+.DS_Store
+
+# IDEs-specific files
+*.iml
+*.ipr
+*.iws
+
+# Java specific files
+*.log
+*.classpath
+*.project
+
+# OS-specific files
+*.swp
+*.swo
+*~
