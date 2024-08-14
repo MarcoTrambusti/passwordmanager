@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         java: [ 8 ]
+        additional-maven-args: ["-Pjacoco", "-Pdocker"]
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
         - os: ubuntu-latest
@@ -30,4 +31,15 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2-
     - name: Build with Maven
-      run: mvn -f pom.xml clean verify
+      run: mvn -f pom.xml clean verify ${{ matrix.additional-maven-args }}
+    - name: Generate JUnit Report
+      run: >
+        mvn -f com.examples.myproject/pom.xml
+        surefire-report:report-only site:site -DgenerateReports=false
+      if: ${{ always() }}
+    - name: Archive JUnit Report
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+      name: surefire-report-jdk-${{ matrix.java }}
+      path: '**/target/site'

@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+   app:
+    image: java-app-password
+    container_name: app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - app-network
+   mariadb:
+    image: mariadb:latest
+    container_name: db
+    environment:
+      MARIADB_ROOT_PASSWORD: mypass
+      MARIADB_DATABASE: myDb
+      MARIADB_USER: myuser
+      MARIADB_PASSWORD: mypass
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app-network
+    volumes:
+      - mariadb_data:/var/lib/mysql  # Persistent data volume
+      - ./mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql
+      
+networks:
+  app-network:
+     driver: bridge
+     
+volumes:
+   mariadb_data:
