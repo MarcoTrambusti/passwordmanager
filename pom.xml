@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>3.0.4</version>
+			<version>3.4.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -287,16 +287,14 @@
 									<name>db</name>
 									<alias>db</alias>
 									<build>
-										<from>mariadb:latest</from>
+										<from>mariadb</from>
 										<healthCheck>
 											<interval>10s</interval>
 											<timeout>50s</timeout>
 											<retries>3</retries>
 											<start-period>20s</start-period>
-											<!--	<cmd>mariadb myDb -umyuser
-											-pmypass</cmd>-->
-											<cmd>healthcheck.sh --connect
-												--innodb_initialized</cmd>
+											<!--	<cmd>mariadb myDb -umyuser -pmypass</cmd>-->
+											<cmd>healthcheck.sh --connect --innodb_initialized</cmd>
 										</healthCheck>
 										<assembly>
 											<mode>dir</mode>
