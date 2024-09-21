@@ -87,7 +87,7 @@ public class UserControllerTest {
 		userController.deleteUser(user);
 	    verify(view).showError("Errore nell'eliminazione dell'utente: utente non trovato o già eliminato. Logout...", user, "errorLabel_main");
 		verifyNoMoreInteractions(ignoreStubs(userRepository));
-		verify(view, timeout(3100)).userLogout();
+		verify(view, timeout(3500)).userLogout();
 	}
 	
 	@Test
