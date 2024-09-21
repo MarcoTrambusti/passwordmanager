@@ -29,7 +29,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
     - name: Build with Maven and SonarCloud
       run: >
-        xvfb-run mvn verify -Pdocker -Pjacoco sonar:sonar
+        xvfb-run mvn verify -Pjacoco sonar:sonar
         -Dsonar.host.url=https://sonarcloud.io
         -Dsonar.organization=marcotrambusti
         -Dsonar.projectKey=MarcoTrambusti_passwordmanager
