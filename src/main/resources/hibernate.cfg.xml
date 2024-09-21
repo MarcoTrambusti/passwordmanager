@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 5.3//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd"> 
+<hibernate-configuration> 
+    <session-factory> 
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.MariaDB103Dialect</property>
+		<property name="hibernate.connection.driver_class">org.mariadb.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mariadb://${db_host}:${db_port}/password_manager</property>
+
+		<property name="hibernate.connection.username">myuser</property>
+		<property name="hibernate.connection.password">mypass</property>
+
+		<property name="hibernate.show_sql">true</property>
+
+    </session-factory> 
+</hibernate-configuration>

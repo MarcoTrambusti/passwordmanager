@@ -4,4 +4,4 @@ ARG jarToCopy
 
 COPY /target/$jarToCopy /app/app.jar
     
-CMD ["java", "-jar", "/app/app.jar", "mariadb"]
+CMD ["java","-jar", "/app/app.jar", "mariadb"]

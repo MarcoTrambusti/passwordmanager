@@ -8,6 +8,9 @@
 		</Console>
 	</Appenders>
 	<Loggers>
+<!-- 		<logger name="org.testcontainers" level="INFO" />
+ -->		<logger name="org.mariadb" level="INFO" />
+
 		<Root level="INFO">
 			<AppenderRef ref="ConsoleAppender" />
 		</Root>
