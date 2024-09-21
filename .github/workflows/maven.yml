@@ -17,6 +17,7 @@ jobs:
           additional-maven-args: >
               -Pjacoco
               -DrepoToken=$COVERALLS_REPO_TOKEN
+              coveralls:report
               -DpullRequest=${{ github.event.pull_request.number }}
           java: 11
 
@@ -34,7 +35,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2-
     - name: Build with Maven
-      run: xvfb-run mvn -f pom.xml verify ${{ matrix.additional-maven-args }}
+      run: xvfb-run mvn -f pom.xml clean verify ${{ matrix.additional-maven-args }}
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
     - name: Generate JUnit Report
