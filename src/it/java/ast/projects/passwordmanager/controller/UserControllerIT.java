@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import java.net.URI;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
@@ -18,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import ast.projects.passwordmanager.model.Password;
 import ast.projects.passwordmanager.model.User;
 import ast.projects.passwordmanager.repository.UserRepositoryImpl;
 import ast.projects.passwordmanager.view.PasswordManagerView;
@@ -55,11 +57,11 @@ public class UserControllerIT {
 		mariaDB.start();
 		String jdbcUrl = mariaDB.getJdbcUrl();
 		URI uri = URI.create(jdbcUrl.replace("jdbc:", ""));		
-		factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:mariadb://" + uri.getHost()+ ":"+uri.getPort()+"/password_manager").addAnnotatedClass(User.class).buildSessionFactory();
+		factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:mariadb://" + uri.getHost()+ ":"+uri.getPort()+"/password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 		
 		userRepository = new UserRepositoryImpl(factory);
 		userController = new UserController(view, userRepository);
-		userRepository.clearDb();	
+		clearTable();	
 	}
 	
 	@After
@@ -108,5 +110,13 @@ public class UserControllerIT {
 		userController.newUser(user);
 		userController.login(user.getEmail(), user.getPassword());
 		verify(view).userLoggedOrRegistered(user);
+	}
+	
+	private void clearTable() {
+		Session session = factory.openSession();
+		session.beginTransaction();
+		session.createNativeQuery("DELETE FROM users;").executeUpdate();
+		session.getTransaction().commit();
+		session.close();
 	}
 }

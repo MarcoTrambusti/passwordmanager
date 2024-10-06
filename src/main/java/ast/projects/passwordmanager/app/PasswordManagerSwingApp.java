@@ -15,8 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import ast.projects.passwordmanager.controller.PasswordController;
 import ast.projects.passwordmanager.controller.UserController;
+import ast.projects.passwordmanager.model.Password;
 import ast.projects.passwordmanager.model.User;
+import ast.projects.passwordmanager.repository.PasswordRepositoryImpl;
 import ast.projects.passwordmanager.repository.UserRepositoryImpl;
 import ast.projects.passwordmanager.view.PasswordManagerViewImpl;
 
@@ -37,7 +40,7 @@ public class PasswordManagerSwingApp {
 				prop.putAll(System.getProperties());
 
 				String dbHost = prop.getProperty("app.db_host") != null ? prop.getProperty("app.db_host") : "localhost";
-				String dbPort = prop.getProperty("app.db_port") != null? prop.getProperty("app.db_port"): "3306";
+				String dbPort = prop.getProperty("app.db_port") != null ? prop.getProperty("app.db_port") : "3306";
 
 				LogManager.getLogger().info("port: ".concat(prop.getProperty("app.db_host")));
 
@@ -48,21 +51,31 @@ public class PasswordManagerSwingApp {
 				String sqlFilePath = "./mariadb-init.sql";
 
 				initDB(url, username, password, sqlFilePath);
-				LogManager.getLogger().info("URL: ".concat(url));
 
-				SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
-						.setProperty("hibernate.connection.url",
-								"jdbc:mariadb://" + dbHost + ":" + dbPort + "/password_manager")
-						.addAnnotatedClass(User.class).buildSessionFactory();
+				SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", url+"password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 
 				UserRepositoryImpl usrRepo = new UserRepositoryImpl(factory);
+				PasswordRepositoryImpl pswRepo = new PasswordRepositoryImpl(factory);
 				PasswordManagerViewImpl view = new PasswordManagerViewImpl();
-				UserController usrController = new UserController(view, usrRepo);
 
+				UserController usrController = new UserController(view, usrRepo);
+				PasswordController pswController = new PasswordController(view, pswRepo);
 				view.setUserController(usrController);
+				view.setPasswordController(pswController);
 				view.setVisible(true);
 
 				System.out.println("Hello World!");
+
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					if (factory != null) {
+						try {
+							factory.close();
+							LogManager.getLogger().info("SessionFactory closed successfully.");
+						} catch (Exception e) {
+							LogManager.getLogger().error("Error closing SessionFactory:", e);
+						}
+					}
+				}));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

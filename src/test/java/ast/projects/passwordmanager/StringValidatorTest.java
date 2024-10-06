@@ -122,4 +122,11 @@ public class StringValidatorTest {
 		String encodedPass = pw.encode(clearPass);
 		assertFalse(StringValidator.checkPasswordMatch("Password123@", encodedPass));
 	}
+	
+	@Test
+	public void testGeneratedPasswordIsValid() {
+		String generatedPassword = StringValidator.generatePassword();
+		assertEquals(8, generatedPassword.length());
+		assertTrue(StringValidator.isValidPassword(generatedPassword));
+	}
 }

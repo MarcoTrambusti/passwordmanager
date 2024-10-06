@@ -1,12 +1,17 @@
 package ast.projects.passwordmanager.model;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -33,7 +38,10 @@ public class User {
     @Column(name ="password_hash",nullable = false)
 	private String password;
     
-    @Transient
+	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Password> sitePasswords = new ArrayList<>();
+
+	@Transient
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	public User() {
@@ -86,6 +94,14 @@ public class User {
 		this.password = password;
 	}
 	
+	public List<Password> getSitePasswords() {
+		return sitePasswords;
+	}
+	
+    public void setSitePasswords(List<Password> sitePasswords) {
+		this.sitePasswords = sitePasswords;
+	}
+    
 	public boolean isPasswordValid(String rawPassword) {
         return passwordEncoder.matches(rawPassword, this.password);  
     }

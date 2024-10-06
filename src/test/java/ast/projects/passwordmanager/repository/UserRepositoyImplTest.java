@@ -2,232 +2,217 @@ package ast.projects.passwordmanager.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.NoResultException;
 import javax.persistence.OptimisticLockException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
-import org.junit.After;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
+import ast.projects.passwordmanager.model.Password;
 import ast.projects.passwordmanager.model.User;
 
 public class UserRepositoyImplTest {
-	
-	@Mock
-	private static SessionFactory factory;
-	
-	@InjectMocks
+
 	private static UserRepositoryImpl userRepository;
-	
-	@Mock
-	Query<User> query;
-	
-	@Mock
-	Session session;
-	
-	private AutoCloseable closeable;
+
+	private static SessionFactory factory;
+	private Session session;
+
+	@BeforeClass
+	public static void setup() {
+		try {
+			StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
+					.configure("hibernate-test.cfg.xml").build();
+
+			Metadata metadata = new MetadataSources(standardRegistry).addAnnotatedClass(User.class)
+					.addAnnotatedClass(Password.class).getMetadataBuilder().build();
+
+			factory = metadata.getSessionFactoryBuilder().build();
+			userRepository = new UserRepositoryImpl(factory);
+
+		} catch (Throwable ex) {
+			throw new ExceptionInInitializerError(ex);
+		}
+	}
 
 	@Before
 	public void setupRepo() {
-		closeable = MockitoAnnotations.openMocks(this);
-		userRepository = new UserRepositoryImpl(factory);
+		clearTable();
 	}
-	
-	@After
-	public void releaseMocks() throws Exception {
-		closeable.close();
+
+	@AfterClass
+	public static void tearDown() throws Exception {
+		factory.close();
 	}
-	
+
 	@Test
 	public void testFindAllWhenDbIsEmpty() {
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User", User.class)).thenReturn(query);
-		when(query.list()).thenReturn(new ArrayList<User>());
-		
-		assertThat(userRepository.findAll()).isEmpty();
-		verify(session).close();
+		List<User> users = userRepository.findAll();
+		assertThat(users).isEmpty();
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
 	}
-	
+
 	@Test
 	public void testFindAllWhenDbIsNotEmpty() {
 		List<User> userList = new ArrayList<User>();
-		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		User u2 = new User("mariorossi2", "mariorossi@gmail.com", "Password123@");
+		User u1 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
+		User u2 = addTestUserToDatabase("mariorossi2", "mariorossi2@gmail.com", "Password123@");
 		userList.add(u1);
-        userList.add(u2);
-        
-        when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User", User.class)).thenReturn(query);
-		when(query.list()).thenReturn(userList);
-
+		userList.add(u2);
 		List<User> users = userRepository.findAll();
-		assertEquals(u1,users.get(0));
-		assertEquals(u2, users.get(1));
-		verify(session).close();
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
+		assertTrue(users.get(0).getUsername().equals(u1.getUsername()) && users.get(0).getEmail().equals(u1.getEmail())
+				&& users.get(0).getPassword().equals(u1.getPassword()));
+		assertTrue(users.get(1).getUsername().equals(u2.getUsername()) && users.get(1).getEmail().equals(u2.getEmail())
+				&& users.get(1).getPassword().equals(u2.getPassword()));
 	}
-	
+
 	@Test
 	public void testFindByIdNotFound() {
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.id = :user_id", User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(null);
-		Mockito.doThrow(new NoResultException("")).when(query).getSingleResult();
-
-		assertThat(userRepository.findById(1))
-			.isNull();
-		verify(session).close();
+		User u = userRepository.findById(1);
+		assertThat(u).isNull();
+		session = userRepository.getCurrentSession();
+		assertNotNull(session);
+		assertFalse(session.isOpen());
 	}
 
 	@Test
 	public void testFindByIdFound() {
-		User u2 = new User("mariorossi2", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.id = :user_id", User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(u2);
-		assertEquals(u2, userRepository.findById(2));
-		verify(session).close();
+		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
+		User u = userRepository.findById(u2.getId());
+		session = userRepository.getCurrentSession();
+		assertNotNull(session);
+		assertFalse(session.isOpen());
+		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword()));
 	}
-	
+
 	@Test
 	public void testFindByUsernameNotFound() {
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.username = :username",User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(null);
-		Mockito.doThrow(new NoResultException("")).when(query).getSingleResult();
-
-		assertThat(userRepository.findByUsername("mariorossi"))
-			.isNull();
-		verify(session).close();
+		User u = userRepository.findByUsername("mariorossi");
+		assertThat(u).isNull();
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
 	}
 
 	@Test
 	public void testFindByUsernameFound() {
-		User u2 = new User("mariorossi2", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.username = :username", User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(u2);
-
-		assertEquals(u2, userRepository.findByUsername("mariorossi2"));
-		verify(session).close();
+		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
+		User u = userRepository.findByUsername("mariorossi");
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
+		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword()));
 	}
-	
+
 	@Test
 	public void testFindByEmailNotFound() {
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.email = :email",User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(null);
-		Mockito.doThrow(new NoResultException("")).when(query).getSingleResult();
-		
-		assertThat(userRepository.findByEmail("mariorossi@gmail.com"))
-			.isNull();
-		verify(session).close();
+		User u = userRepository.findByEmail("mariorossi@gmail.com");
+		assertThat(u).isNull();
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
 	}
 
 	@Test
 	public void testFindByEmailFound() {
-		User u2 = new User("mariorossi2", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);		
-		when(session.createQuery("FROM User u WHERE u.email = :email",User.class)).thenReturn(query);
-		when(query.getSingleResult()).thenReturn(u2);
-		
-		assertEquals(u2, userRepository.findByEmail("mariorossi@gmail.com"));
-		verify(session).close();
+		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
+		User u = userRepository.findByEmail("mariorossi@gmail.com");
+		// assertNotNull(session);
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
+		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword()));
 	}
-	
+
 	@Test
 	public void testSaveUser() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		Transaction t = mock(Transaction.class);
-
-		when(factory.openSession()).thenReturn(session);	
-		when(session.getTransaction()).thenReturn(t);	
-
 		userRepository.save(u1);
-		
-		verify(session).save(u1);
-		verify(t).commit();
-		verify(session).close();
+		session = userRepository.getCurrentSession();
+		assertNotNull(session);
+		assertEquals(TransactionStatus.COMMITTED, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+		assertEquals(1, readAllUsersFromDatabase().size());
+		User u = readAllUsersFromDatabase().get(0);
+		assertTrue(u.getUsername().equals(u1.getUsername()) && u.getEmail().equals(u1.getEmail())
+				&& u.getPassword().equals(u1.getPassword()));
 	}
-	
+
 	@Test
 	public void testSaveUserWhenUserIsAlreadyInDB() {
-		Transaction transaction = mock(Transaction.class);
-		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);	
-		when(session.getTransaction()).thenReturn(transaction);	
-		Mockito.doThrow(new ConstraintViolationException("Username already exists", null, "")).when(session).save(u1);
-
-		assertThrows(ConstraintViolationException.class, () -> 		userRepository.save(u1));
-
-		verify(session).save(u1);
-		verify(transaction).rollback();
-		verify(session).close();
+		User u1 = addTestUserToDatabase("mariorossi2", "mariorossi@gmail.com", "Password123@");
+		assertThrows(ConstraintViolationException.class, () -> userRepository.save(u1));
+		session = userRepository.getCurrentSession();
+		assertFalse(session.isOpen());
+		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
+		assertEquals(1, readAllUsersFromDatabase().size());
 	}
-	
+
 	@Test
 	public void testDeleteUser() {
-		Transaction t = mock(Transaction.class);
-		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);	
-		when(session.getTransaction()).thenReturn(t);	
-
+		User u1 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		userRepository.delete(u1);
-		
-		verify(session).delete(u1);
-		verify(session).close();
-		verify(t).commit();
-		assertEquals(null, userRepository.findByUsername("mariorossi"));
+		session = userRepository.getCurrentSession();
+		assertEquals(TransactionStatus.COMMITTED, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+		assertTrue(readAllUsersFromDatabase().isEmpty());
 	}
-	
+
 	@Test
 	public void testDeleteUserThatIsNotInDB() {
-		Transaction transaction = mock(Transaction.class);
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		when(factory.openSession()).thenReturn(session);	
-		when(session.getTransaction()).thenReturn(transaction);	
-		Mockito.doThrow(new OptimisticLockException("User not  exists", null, "")).when(session).delete(user);
-
+		user.setId(1);
 		assertThrows(OptimisticLockException.class, () -> userRepository.delete(user));
+		session = userRepository.getCurrentSession();
+		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+	}
 
-		verify(session).delete(user);
-		verify(transaction).rollback();
-		verify(session).close();
+	private void clearTable() {
+		session = factory.openSession();
+		session.beginTransaction();
+		session.createNativeQuery("DELETE FROM users;").executeUpdate();
+		session.getTransaction().commit();
+		session.close();
 	}
-	
-	@Test
-	public void testClearDb() {
-		Transaction t = mock(Transaction.class);
-		when(factory.openSession()).thenReturn(session);	
-		when(session.getTransaction()).thenReturn(t);	
-		when(session.createNativeQuery("TRUNCATE TABLE users;")).thenReturn(mock(NativeQuery.class));
-		
-		userRepository.clearDb();
-		
-		verify(session).close();
-		verify(t).commit();
+
+	private User addTestUserToDatabase(String username, String email, String password) {
+		User user = new User(username, email, password);
+		session = factory.openSession();
+		session.beginTransaction();
+		Serializable id = session.save(user);
+		user.setId((Integer) id);
+		session.getTransaction().commit();
+		session.close();
+		return user;
 	}
-	
-	@Test 
-	public void testCloseFactory() {
-		userRepository.closeFactory();
-		verify(factory).close();
+
+	private List<User> readAllUsersFromDatabase() {
+		session = factory.openSession();
+		Query<User> query = session.createQuery("FROM User", User.class);
+		List<User> results = query.list();
+		session.close();
+		return results;
 	}
 }
