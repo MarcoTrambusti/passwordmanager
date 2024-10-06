@@ -40,7 +40,6 @@ public class UserController {
 				public void run() {
 					SwingUtilities.invokeLater(() -> {
 						pwdmngrView.userLogout();
-						timer.cancel();
 					});
 				}
 			}, 3000);
@@ -63,9 +62,9 @@ public class UserController {
 
 		pwdmngrView.showError("username/email o password errati!", null, "errorLabel_login");
 	}
-
-	public void closeFactory() {
-		userRepository.closeFactory();
-	}
+//
+//	public void closeFactory() {
+//		userRepository.closeFactory();
+//	}
 
 }

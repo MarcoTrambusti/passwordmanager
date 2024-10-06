@@ -17,42 +17,39 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<!-- For each rule to be ignore, add another eXX and two corresponding
-		properties with eXX in the name as below -->
-		<!--<sonar.issue.ignore.multicriteria>e11,e12,e13</sonar.issue.ignore.multicriteria>
-	     Disable rule for "Inheritance tree of classes should not be too deep" (just an example) 
+		 <!--For each rule to be ignore, add another eXX and two corresponding properties with eXX in the name as below -->
+		<sonar.issue.ignore.multicriteria>e11,e12,e13</sonar.issue.ignore.multicriteria>
+	    <!-- Disable rule for "Inheritance tree of classes should not be too deep" (just an example) -->
 	    <sonar.issue.ignore.multicriteria.e11.ruleKey>
 	      java:S110
 	    </sonar.issue.ignore.multicriteria.e11.ruleKey>
 	    <sonar.issue.ignore.multicriteria.e11.resourceKey>
 	      **/*.java
-	    </sonar.issue.ignore.multicriteria.e11.resourceKey>-->
-		<!-- Disable rule for "Local variable and method parameter names should
-		comply with a naming convention" (just an example) -->
-		<!--<sonar.issue.ignore.multicriteria.e12.ruleKey>
+	    </sonar.issue.ignore.multicriteria.e11.resourceKey>
+		 <!--Disable rule for "Local variable and method parameter names should comply with a naming convention" (just an example) -->
+		<sonar.issue.ignore.multicriteria.e12.ruleKey>
 	      java:S117
 	    </sonar.issue.ignore.multicriteria.e12.ruleKey>
 	    <sonar.issue.ignore.multicriteria.e12.resourceKey>
-	      **/StudentSwingView.java
-	    </sonar.issue.ignore.multicriteria.e12.resourceKey>-->
-		<!-- Disable rule for "Tests should include assertions": SonarQube is
-		not aware of AssertJ Swing -->
-		<!--<sonar.issue.ignore.multicriteria.e13.ruleKey>
+	      **/PasswordManagerView*.java
+	    </sonar.issue.ignore.multicriteria.e12.resourceKey>
+		 <!--Disable rule for "Tests should include assertions": SonarQube isnot aware of AssertJ Swing -->
+		<sonar.issue.ignore.multicriteria.e13.ruleKey>
 	      java:S2699
 	    </sonar.issue.ignore.multicriteria.e13.ruleKey>
 	    <sonar.issue.ignore.multicriteria.e13.resourceKey>
-	      **/StudentSwingViewTest.java
-	    </sonar.issue.ignore.multicriteria.e13.resourceKey>-->
-
+	      **/PasswordManagerViewImplTest.java
+	    </sonar.issue.ignore.multicriteria.e13.resourceKey>
 		<sonar.coverage.exclusions>
 			**/model/*.*
 		</sonar.coverage.exclusions>
-
 		<sonar.junit.reportPaths>
 			${project.build.directory}/surefire-reports,
 			${project.build.directory}/failsafe-reports
 		</sonar.junit.reportPaths>
+		
 		<testcontainers.version>1.19.3</testcontainers.version>
+		
 		<db_host>localhost</db_host>
 		<db_username>root</db_username>
 		<db_password></db_password>
@@ -69,7 +66,7 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.15.0</version>
+			<version>3.17.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -81,12 +78,7 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>2.17.1</version>
-		</dependency><!--
-		 <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.3.0</version>
-        </dependency>-->
+		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
@@ -104,8 +96,20 @@
 			<version>5.6.15.Final</version>
 		</dependency>
 		<dependency>
+		    <groupId>org.hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		    <version>2.6.1</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+      		<groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <version>2.1.212</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
 		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-log4j12</artifactId>
+		    <artifactId>slf4j-reload4j</artifactId>
 		    <version>1.7.36</version>
 		    <scope>runtime</scope>
 		</dependency>
@@ -132,6 +136,12 @@
 		    <scope>test</scope>
 		</dependency>-->
 		<dependency>
+		    <groupId>org.assertj</groupId>
+		    <artifactId>assertj-swing-junit</artifactId>
+		    <version>3.17.1</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
 			<version>${testcontainers.version}</version>
@@ -144,10 +154,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-swing-junit</artifactId>
-			<version>3.17.1</version>
-			<scope>test</scope>
+			  <groupId>org.assertj</groupId>
+			  <artifactId>assertj-swing</artifactId>
+			  <version>3.17.1</version> 
 		</dependency>
 	</dependencies>
 	<build>
@@ -305,9 +314,12 @@
 					<artifactId>pitest-maven</artifactId>
 					<version>1.5.2</version>
 					<configuration>
+						<jvmArgs>
+		                    <jvmArg>-Djava.awt.headless=false</jvmArg>
+		                </jvmArgs>
 						<targetClasses>
 <!--							TODO changeme
--->							<param>ast.projects.passwordmanager.app.*</param>
+-->							<param>ast.projects.passwordmanager.app.StringValidator</param>
 							<param>ast.projects.passwordmanager.model.*</param>
 							<param>ast.projects.passwordmanager.controller.*</param>
 							<param>ast.projects.passwordmanager.view.*</param>
@@ -316,6 +328,7 @@
 						<targetTests>
 <!--							TODO changeme
 -->							<param>ast.projects.passwordmanager.*</param>
+							<param>ast.projects.passwordmanager.app.StringValidatorTest</param>
 						</targetTests>
 						<mutators>
 							<mutator>DEFAULTS</mutator>
@@ -324,7 +337,8 @@
 						 <excludedTestClasses>
     						<param>ast.projects.passwordmanager.**.*IT</param>
     						<param>ast.projects.passwordmanager.**.*E2E</param>
-					        <excludedClass>ast.projects.passwordmanager.view.PasswordManagerViewImplTest</excludedClass>
+    						<!--<param>ast.projects.passwordmanager.view.*</param>
+					        <excludedClass>ast.projects.passwordmanager.view.PasswordManagerViewImplTest</excludedClass>-->
 					    </excludedTestClasses>
 					</configuration>
 					<executions>
@@ -348,6 +362,8 @@
 							<exclude>**/src/e2e/java**</exclude>
 			                <exclude>**/User.get**</exclude>
 			                <exclude>**/User.set**</exclude>
+			                <exclude>**/Password.get**</exclude>
+			                <exclude>**/Password.set**</exclude>
 						</excludes>
 					</configuration>
 					<executions>

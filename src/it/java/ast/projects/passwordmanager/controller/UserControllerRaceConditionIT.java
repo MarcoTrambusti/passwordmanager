@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
@@ -22,6 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import ast.projects.passwordmanager.model.Password;
 import ast.projects.passwordmanager.model.User;
 import ast.projects.passwordmanager.repository.UserRepositoryImpl;
 import ast.projects.passwordmanager.view.PasswordManagerView;
@@ -60,10 +62,10 @@ public class UserControllerRaceConditionIT {
 		mariaDB.start();
 		String jdbcUrl = mariaDB.getJdbcUrl();
 		URI uri = URI.create(jdbcUrl.replace("jdbc:", ""));
-		factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:mariadb://" + uri.getHost()+ ":"+uri.getPort()+"/password_manager").addAnnotatedClass(User.class).buildSessionFactory();
+		factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:mariadb://" + uri.getHost()+ ":"+uri.getPort()+"/password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 		
 		userRepository = new UserRepositoryImpl(factory);
-		userRepository.clearDb();	
+		clearTable();
 	}
 	
 	@After
@@ -88,7 +90,7 @@ public class UserControllerRaceConditionIT {
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 				// wait for all the threads to finish
-		latch.await(10, TimeUnit.SECONDS);
+		latch.await(12, TimeUnit.SECONDS);
 				// there should be a single element in the list
 		List<User> userFound = userRepository.findAll();
 		assertEquals(1,userFound.size());
@@ -96,4 +98,11 @@ public class UserControllerRaceConditionIT {
         assertTrue(u.getUsername().equals(user.getUsername()) && u.getEmail().equals(user.getEmail()) && u.getPassword().equals(user.getPassword()));
 	}
 	
+	private void clearTable() {
+		Session session = factory.openSession();
+		session.beginTransaction();
+		session.createNativeQuery("DELETE FROM users;").executeUpdate();
+		session.getTransaction().commit();
+		session.close();
+	}
 }

@@ -1,7 +1,6 @@
 package ast.projects.passwordmanager.repository;
 
 import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -11,6 +10,7 @@ import ast.projects.passwordmanager.model.User;
 public class UserRepositoryImpl implements UserRepository {
 
 	private SessionFactory sessionFactory;
+	private Session session;
 
 	public UserRepositoryImpl(SessionFactory sessionFactory) {
 		super();
@@ -19,7 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public void save(User user) {
-		Session session = getSessionFactory().openSession();
+		session = getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			session.save(user);
@@ -32,17 +32,21 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+//	void setSessionFactory(SessionFactory sessionFactory) {
+//		this.sessionFactory = sessionFactory;
+//	}
 
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
 	}
 
+	Session getCurrentSession() {
+		return session;
+	}
+
 	@Override
 	public User findById(int id) {
-		Session session = getSessionFactory().openSession();
+		session = getSessionFactory().openSession();
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.id = :user_id", User.class);
@@ -59,7 +63,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public User findByUsername(String username) {
-		Session session = getSessionFactory().openSession();
+		session = getSessionFactory().openSession();
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.username = :username", User.class);
@@ -76,8 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public List<User> findAll() {
-		Session session = getSessionFactory().openSession();
-
+		session = getSessionFactory().openSession();
 		Query<User> query = session.createQuery("FROM User", User.class);
 		List<User> results = query.list();
 		session.close();
@@ -87,7 +90,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public void delete(User user) {
-		Session session = getSessionFactory().openSession();
+		session = getSessionFactory().openSession();
 		try {
 			session.beginTransaction();
 			session.delete(user);
@@ -102,7 +105,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public User findByEmail(String email) {
-		Session session = getSessionFactory().openSession();
+		session = getSessionFactory().openSession();
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.email = :email", User.class);
@@ -117,16 +120,11 @@ public class UserRepositoryImpl implements UserRepository {
 		return result;
 	}
 
-	public void clearDb() {
-		Session session = getSessionFactory().openSession();
-		session.beginTransaction();
-		session.createNativeQuery("TRUNCATE TABLE users;").executeUpdate();
-		session.getTransaction().commit();
-		session.close();
-	}
-
-	public void closeFactory() {
-		getSessionFactory().close();
-	}
-
+//	public void clearDb() {
+//		Session session = getSessionFactory().openSession();
+//		session.beginTransaction();
+//		session.createNativeQuery("DELETE FROM users;").executeUpdate();
+//		session.getTransaction().commit();
+//		session.close();
+//	}
 }
