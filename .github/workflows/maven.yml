@@ -41,7 +41,7 @@ jobs:
     - name: Generate JUnit Report
       run: >
         mvn -f pom.xml
-        surefire-report:report-only site:site -DgenerateReports=false
+        surefire-report:report-only surefire-report:failsafe-report-only site:site -DgenerateReports=false
       if: ${{ always() }}
     - name: Archive JUnit Report
       uses: actions/upload-artifact@v4

@@ -119,6 +119,18 @@ public class PasswordRepositoryImplTest {
 	}
 
 	@Test
+	public void testUpdatePasswordWhenNotInDb() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		password.setId(2);
+		password.setPassword("newPass123!");
+		password.setUsername("newuser");
+		assertThrows(OptimisticLockException.class, () -> passwordRepository.save(password));
+		session = passwordRepository.getCurrentSession();
+		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+	}
+	
+	@Test
 	public void testFindByIdNotFound() {
 		Password p = passwordRepository.findById(1);
 		session = passwordRepository.getCurrentSession();

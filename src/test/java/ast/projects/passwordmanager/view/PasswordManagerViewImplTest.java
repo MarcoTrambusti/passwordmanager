@@ -319,7 +319,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testShowErrorInMainPane() {
+	public void testShowErrorInMainPaneWithUser() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner.execute(() -> passwordManagerView.showError("error", u1, "errorLabel_main"));
@@ -327,6 +327,18 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 				u1.getPassword());
 	}
 
+	@Test
+	public void testShowErrorInMainPaneWithPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		u1.setId(1);
+		Password p = new Password("s", "u", "p", u1);
+		p.setId(1);
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		GuiActionRunner.execute(() -> passwordManagerView.showError("error", p, "errorLabel_main"));
+		assertThat(window.label("errorMainLabel").text()).contains("error", p.getId().toString(), p.getSite(),
+				p.getUsername());
+	}
+	
 	@Test
 	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabled() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
