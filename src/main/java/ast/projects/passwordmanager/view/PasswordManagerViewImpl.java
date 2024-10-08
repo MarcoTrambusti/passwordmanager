@@ -609,9 +609,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 	}
 
 	@Override
-	public void showError(String message, Object user, String labelName) {
+	public void showError(String message, Object obj, String labelName) {
 		JLabel label = errorLabels.get(labelName);
-		label.setText(message + (user != null ? ": " + user.toString() : ""));
+		label.setText(message + (obj != null ? ": " + obj.toString() : ""));
 	}
 
 	@Override
