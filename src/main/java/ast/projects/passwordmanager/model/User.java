@@ -38,7 +38,7 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String password;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "userId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Password> sitePasswords = new ArrayList<>();
 
 	@Transient
@@ -75,25 +75,13 @@ public class User {
 		return username;
 	}
 
-//	public void setUsername(String username) {
-//		this.username = username;
-//	}
-
 	public String getEmail() {
 		return email;
 	}
 
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
-
 	public String getPassword() {
 		return password;
 	}
-
-//	public void setPassword(String password) {
-//		this.password = password;
-//	}
 
 	public List<Password> getSitePasswords() {
 		return sitePasswords;
@@ -106,13 +94,6 @@ public class User {
 	public boolean isPasswordValid(String rawPassword) {
 		return passwordEncoder.matches(rawPassword, this.password);
 	}
-//
-//	@Override
-//	public boolean equals(Object o) {
-//		User u = (User) o;
-//		return this.username.equals(u.getUsername()) && this.email.equals(u.getEmail())
-//				&& this.password.equals(u.getPassword());
-//	}
 
 	@Override
 	public String toString() {

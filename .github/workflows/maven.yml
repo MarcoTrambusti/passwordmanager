@@ -15,7 +15,7 @@ jobs:
         include:
         - os: ubuntu-latest
           additional-maven-args: >
-              -Pjacoco
+              -Pjacoco,mutation-testing
               -DrepoToken=$COVERALLS_REPO_TOKEN
               coveralls:report
               -DpullRequest=${{ github.event.pull_request.number }}

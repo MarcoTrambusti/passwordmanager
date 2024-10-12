@@ -38,9 +38,9 @@ public class UserController {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					SwingUtilities.invokeLater(() -> {
-						pwdmngrView.userLogout();
-					});
+					SwingUtilities.invokeLater(() -> 
+						pwdmngrView.userLogout()
+					);
 				}
 			}, 3000);
 		}
@@ -62,9 +62,5 @@ public class UserController {
 
 		pwdmngrView.showError("username/email o password errati!", null, "errorLabel_login");
 	}
-//
-//	public void closeFactory() {
-//		userRepository.closeFactory();
-//	}
 
 }

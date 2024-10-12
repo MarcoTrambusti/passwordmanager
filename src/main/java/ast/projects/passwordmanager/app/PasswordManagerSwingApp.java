@@ -24,6 +24,7 @@ import ast.projects.passwordmanager.repository.UserRepositoryImpl;
 import ast.projects.passwordmanager.view.PasswordManagerViewImpl;
 
 public class PasswordManagerSwingApp {
+	private static final String APP_DB_HOST = "app.db_host";
 	/**
 	 * Launch the application.
 	 */
@@ -38,11 +39,11 @@ public class PasswordManagerSwingApp {
 				// load a properties from app.properties file and initialize db
 				prop.load(input);
 				prop.putAll(System.getProperties());
-
-				String dbHost = prop.getProperty("app.db_host") != null ? prop.getProperty("app.db_host") : "localhost";
+				
+				String dbHost = prop.getProperty(APP_DB_HOST) != null ? prop.getProperty(APP_DB_HOST) : "localhost";
 				String dbPort = prop.getProperty("app.db_port") != null ? prop.getProperty("app.db_port") : "3306";
 
-				LogManager.getLogger().info("port: ".concat(prop.getProperty("app.db_host")));
+				LogManager.getLogger().info("port: ".concat(prop.getProperty(APP_DB_HOST)));
 
 				String url = "jdbc:mariadb://" + dbHost + ":" + dbPort + "/";
 
@@ -64,7 +65,7 @@ public class PasswordManagerSwingApp {
 				view.setPasswordController(pswController);
 				view.setVisible(true);
 
-				System.out.println("Hello World!");
+				LogManager.getLogger().info("Hello World!");
 
 				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 					if (factory != null) {
@@ -77,7 +78,7 @@ public class PasswordManagerSwingApp {
 					}
 				}));
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogManager.getLogger().debug(e.getStackTrace());
 			}
 		});
 	}
@@ -94,7 +95,7 @@ public class PasswordManagerSwingApp {
 			}
 
 		} catch (SQLException | IOException e) {
-			e.printStackTrace();
+			LogManager.getLogger().debug(e.getStackTrace());
 		}
 	}
 
