@@ -11,7 +11,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -31,7 +30,6 @@ import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.Query;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -122,9 +120,7 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testAddPasswordButton()
-			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+	public void testAddPasswordButton() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		userRepository.save(user);
 		window.textBox("usrmailTextField").setText("mariorossi@");
@@ -135,9 +131,9 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("userTextField").enterText("u2");
 		window.textBox("passwordMainPasswordField").enterText("p2");
 		window.button("addButton").click();
-		Password p = readAllPasswordsFromDatabase().get(0);
-		assertTrue(p.getUsername().equals("u2") && decrypt(p).equals("p2") && p.getSite().equals("s2")
-				&& p.getUser().getId().equals(user.getId()));
+		Password p = userRepository.findByUsername("mariorossi").getSitePasswords().get(0);
+		assertTrue(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
+				&& p.getUserId().equals(user.getId()));
 	}
 
 	@Test
@@ -146,7 +142,7 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		userRepository.save(user);
-		Password p1 = new Password("s1", "u1", "p1", user);
+		Password p1 = new Password("s1", "u1", "p1", user.getId(), user.getPassword());
 		passwordRepository.save(p1);
 		window.textBox("usrmailTextField").setText("mariorossi@");
 		window.textBox("usrmailTextField").enterText("gmail.com");
@@ -157,9 +153,9 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("userTextField").setText("").enterText("u2");
 		window.textBox("passwordMainPasswordField").setText("").enterText("p2");
 		window.button("addButton").click();
-		Password p = readAllPasswordsFromDatabase().get(0);
-		assertTrue(p.getUsername().equals("u2") && decrypt(p).equals("p2") && p.getSite().equals("s2")
-				&& p.getUser().getId().equals(user.getId()));
+		Password p = userRepository.findByUsername("mariorossi").getSitePasswords().get(0);
+		assertTrue(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
+				&& p.getUserId().equals(user.getId()));
 	}
 	
 	@Test
@@ -168,7 +164,7 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		userRepository.save(user);
-		Password password = new Password("s1", "u1", "p1", user);
+		Password password = new Password("s1", "u1", "p1", user.getId(), user.getPassword());
 		passwordRepository.save(password);
 		window.textBox("usrmailTextField").setText("mariorossi@");
 		window.textBox("usrmailTextField").enterText("gmail.com");
@@ -189,24 +185,15 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		session.close();
 	}
 	
-	private List<Password> readAllPasswordsFromDatabase() {
-		Session session = factory.openSession();
-		Query<Password> query = session.createQuery("FROM Password", Password.class);
-		List<Password> results = query.list();
-		session.close();
-
-		return results;
-	}
-	
-	private String decrypt(Password password) {
-		SecretKeyFactory factory;
+	private String decrypt(Password password, String userHashedPsw) {
+		SecretKeyFactory secretKeyFactory;
 		String decryptedPassword = null;
 
 		try {
-			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			PBEKeySpec spec = new PBEKeySpec(password.getUser().getPassword().toCharArray(), password.getSalt(), 65536,
+			secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+			PBEKeySpec spec = new PBEKeySpec(userHashedPsw.toCharArray(), password.getSalt(), 65536,
 					256);
-			byte[] key = factory.generateSecret(spec).getEncoded();
+			byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
 			SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, password.getIv()));

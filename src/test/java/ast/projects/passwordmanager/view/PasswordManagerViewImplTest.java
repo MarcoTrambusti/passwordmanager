@@ -1,6 +1,7 @@
 package ast.projects.passwordmanager.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
@@ -10,7 +11,10 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import java.awt.Color;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -37,7 +41,12 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.matcher.JButtonMatcher;
@@ -100,18 +109,35 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	public void testControlsInitialStates() {
 		window.requireTitle("PasswordManager");
 		window.tabbedPane("loginregisterTabbedPane").requireVisible();
+		window.tabbedPane().target().getName().equals("loginTab");
 		window.label(JLabelMatcher.withText("username/email"));
 		window.textBox("usrmailTextField").requireEnabled();
+		assertEquals(10,((JTextField)window.textBox("usrmailTextField").target()).getColumns());
 		window.label("passwordloginLabel");
 		window.textBox("passwordPasswordField").requireEnabled();
 		window.button(JButtonMatcher.withText("Login")).requireDisabled();
 		window.label("errorLoginLabel").requireText("");
+		assertEquals(WindowConstants.EXIT_ON_CLOSE, ((JFrame) window.target()).getDefaultCloseOperation());
+		assertEquals(new Insets(5, 5, 5, 5),((EmptyBorder) ((JPanel) ((JFrame) window.target()).getContentPane()).getBorder()).getBorderInsets());
+		GridBagLayout loginPanelayout = (GridBagLayout) ((JPanel) window.panel("loginTab").target()).getLayout();
+		assertThat(loginPanelayout).isInstanceOf(GridBagLayout.class);
+		assertArrayEquals(new int[] { 0, 0 }, loginPanelayout.columnWidths);
+		assertArrayEquals(new int[] { 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, loginPanelayout.rowHeights);
+		assertArrayEquals(new double[] { 1.0, Double.MIN_VALUE }, loginPanelayout.columnWeights, Double.MIN_VALUE);
+		assertArrayEquals(new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE },loginPanelayout.rowWeights, Double.MIN_VALUE);
 	}
 
 	@Test
-	public void testWhenUsrMailAndPasswordAreNotEmptyLoginButtonShouldBeEnabled() {
+	public void testWhenUsrMailAndPasswordAreNotEmptyLoginButtonShouldBeWhenLastInputIsPassword() {
 		window.textBox("usrmailTextField").enterText("u");
 		window.textBox("passwordPasswordField").enterText("p");
+		window.button(JButtonMatcher.withText("Login")).requireEnabled();
+	}
+	
+	@Test
+	public void testWhenUsrMailAndPasswordAreNotEmptyLoginButtonShouldBeWhenLastInputIsUsrMail() {
+		window.textBox("passwordPasswordField").enterText("p");
+		window.textBox("usrmailTextField").enterText("u");
 		window.button(JButtonMatcher.withText("Login")).requireEnabled();
 	}
 
@@ -135,20 +161,46 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
 		window.label(JLabelMatcher.withText("username"));
 		window.textBox("usernameRegTextField").requireEnabled();
+		assertEquals(10,((JTextField)window.textBox("usernameRegTextField").target()).getColumns());
 		window.label(JLabelMatcher.withText("email"));
 		window.textBox("emailRegTextField").requireEnabled();
+		assertEquals(10,((JTextField)window.textBox("emailRegTextField").target()).getColumns());
 		window.label("passwordRegLabel");
 		window.textBox("passwordRegPasswordField").requireEnabled();
 		window.button(JButtonMatcher.withText("Register")).requireDisabled();
 		window.label("errorRegLabel").requireText("");
+		GridBagLayout registerPanelayout = (GridBagLayout) ((JPanel) window.panel("registerTab").target()).getLayout();
+		assertThat(registerPanelayout).isInstanceOf(GridBagLayout.class);
+		assertArrayEquals(new int[] { 0, 0 }, registerPanelayout.columnWidths);
+		assertArrayEquals(new int[] { 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, registerPanelayout.rowHeights);
+		assertArrayEquals(new double[] { 1.0, Double.MIN_VALUE }, registerPanelayout.columnWeights, Double.MIN_VALUE);
+		assertArrayEquals(new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE },registerPanelayout.rowWeights, Double.MIN_VALUE);
 	}
 
 	@Test
-	public void testRegisterTabWhenUsernameAndMailAndPasswordAreNotEmptyRegisterButtonShouldBeEnabled() {
+	public void testRegisterTabWhenUsernameAndMailAndPasswordAreNotEmptyRegisterButtonShouldBeWhenLastInputIsPassword() {
 		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
 		window.textBox("usernameRegTextField").enterText("u");
 		window.textBox("emailRegTextField").enterText("e");
 		window.textBox("passwordRegPasswordField").enterText("p");
+		window.button(JButtonMatcher.withText("Register")).requireEnabled();
+	}
+	
+	@Test
+	public void testRegisterTabWhenUsernameAndMailAndPasswordAreNotEmptyRegisterButtonShouldBeWhenLastInputIsUsername() {
+		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
+		window.textBox("emailRegTextField").enterText("e");
+		window.textBox("passwordRegPasswordField").enterText("p");
+		window.textBox("usernameRegTextField").enterText("u");
+		window.button(JButtonMatcher.withText("Register")).requireEnabled();
+	}
+	
+	@Test
+	public void testRegisterTabWhenUsernameAndMailAndPasswordAreNotEmptyRegisterButtonShouldBeWhenLastInputIsEmail() {
+		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
+		window.textBox("usernameRegTextField").enterText("u");
+		window.textBox("passwordRegPasswordField").enterText("p");
+		window.textBox("emailRegTextField").enterText("e");
 		window.button(JButtonMatcher.withText("Register")).requireEnabled();
 	}
 
@@ -183,6 +235,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	public void testShowErrorInLoginTab() {
 		GuiActionRunner.execute(() -> passwordManagerView.showError("error", null, "errorLabel_login"));
 		window.label("errorLoginLabel").requireText("error");
+		assertEquals(Color.RED, window.label("errorLoginLabel").target().getForeground());
 	}
 
 	@Test
@@ -190,6 +243,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
 		GuiActionRunner.execute(() -> passwordManagerView.showError("error", null, "errorLabel_register"));
 		window.label("errorRegLabel").requireText("error");
+		assertEquals(Color.RED, window.label("errorRegLabel").target().getForeground());
 	}
 
 	@Test
@@ -215,6 +269,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		password.requireEmpty();
 		loginErrorLabel.requireText("");
 		window.panel("mainPane").requireVisible();
+		window.panel("mainPane").background().requireEqualTo(new Color(224, 255, 255));
 		window.menuItemWithPath(u1.getUsername()).requireVisible();
 		assertEquals("userIcon",((ImageIcon)window.menuItemWithPath(u1.getUsername()).target().getIcon()).getDescription());
 		window.list("passwordList");
@@ -224,8 +279,15 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		assertEquals("copyIcon",((ImageIcon)window.button("copyButton").target().getIcon()).getDescription());
 		window.button("deleteButton").requireDisabled();
 		assertEquals("deleteIcon",((ImageIcon)window.button("deleteButton").target().getIcon()).getDescription());
+		window.button("clearSelectionButton").requireDisabled();
+		assertEquals("deselectIcon",((ImageIcon)window.button("clearSelectionButton").target().getIcon()).getDescription());
+		window.label(JLabelMatcher.withText("site")).requireVisible();
+		assertEquals(10,((JTextField)window.textBox("siteTextField").target()).getColumns());
 		window.textBox("siteTextField").requireText("");
+		window.label(JLabelMatcher.withText("user")).requireVisible();
+		assertEquals(10,((JTextField)window.textBox("userTextField").target()).getColumns());
 		window.textBox("userTextField").requireText("");
+		window.label("mainPasswordLabel").requireVisible();
 		window.textBox("passwordMainPasswordField").requireText("");
 		window.button("generateButton").requireEnabled();
 		assertEquals("generatePasswordIcon",((ImageIcon)window.button("generateButton").target().getIcon()).getDescription());
@@ -269,6 +331,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("deleteButton").requireDisabled();
+		window.button("clearSelectionButton").requireDisabled();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
 		window.textBox("passwordMainPasswordField").requireText("");
@@ -294,13 +357,29 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("emailRegTextField").enterText("gmail.com");
 		window.textBox("passwordRegPasswordField").enterText("Password123");
 		window.button(JButtonMatcher.withText("Register")).click();
-		window.label("errorRegLabel").requireText(
-				"La password deve essere almeno di 8 caratteri, deve contenere almeno una lettera maiuscola, una lettera minuscola, una cifra, un carattere speciale e nessuno spazio bianco.");
+		window.label("errorRegLabel").requireText("La password deve essere almeno di 8 caratteri, deve contenere almeno una lettera maiuscola, una lettera minuscola, una cifra, un carattere speciale e nessuno spazio bianco.");
 	}
 
 	@Test
-	public void testUserLogout() {
+	public void testMainPaneLayout() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		GridBagLayout mainPanelayout = (GridBagLayout) ((JPanel) window.panel("mainPane").target()).getLayout();
+		assertThat(mainPanelayout).isInstanceOf(GridBagLayout.class);
+		assertArrayEquals(new int[] { 0, 0, 0, 0, 0 }, mainPanelayout.columnWidths);
+		assertArrayEquals(new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, mainPanelayout.rowHeights);
+		assertArrayEquals(new double[] { 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE }, mainPanelayout.columnWeights, Double.MIN_VALUE);
+		assertArrayEquals(new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE }, mainPanelayout.rowWeights, Double.MIN_VALUE);
+	}
+	
+	@Test
+	public void testUserLogout() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		u1.setId(1);
+		Password p = new Password("s", "u", "p", u1.getId(), u1.getPassword());
+		List<Password> l = new ArrayList<Password>();
+		l.add(p);
+		u1.setSitePasswords(l);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		JListFixture passwordList = window.list();
 		JMenuItemFixture menuUser = window.menuItemWithPath(u1.getUsername());
@@ -323,24 +402,23 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner.execute(() -> passwordManagerView.showError("error", u1, "errorLabel_main"));
-		assertThat(window.label("errorMainLabel").text()).contains("error", u1.getUsername(), u1.getEmail(),
-				u1.getPassword());
+		assertThat(window.label("errorMainLabel").text()).contains("error", u1.getUsername(), u1.getEmail(),u1.getPassword());
+		assertEquals(Color.RED, window.label("errorMainLabel").target().getForeground());
 	}
 
 	@Test
 	public void testShowErrorInMainPaneWithPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
-		Password p = new Password("s", "u", "p", u1);
+		Password p = new Password("s", "u", "p", u1.getId(), u1.getPassword());
 		p.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner.execute(() -> passwordManagerView.showError("error", p, "errorLabel_main"));
-		assertThat(window.label("errorMainLabel").text()).contains("error", p.getId().toString(), p.getSite(),
-				p.getUsername());
+		assertThat(window.label("errorMainLabel").text()).contains("error", p.getId().toString(), p.getSite(),p.getUsername());
 	}
 	
 	@Test
-	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabled() {
+	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabledWhenLastInputIsPassword() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		window.textBox("siteTextField").enterText("s");
@@ -350,6 +428,26 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
+	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabledLastInputIsSite() {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		window.textBox("userTextField").enterText("u");
+		window.textBox("passwordMainPasswordField").enterText("p");
+		window.textBox("siteTextField").enterText("s");
+		window.button("addButton").requireEnabled();
+	}
+	
+	@Test
+	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabledLastInputIsUsername() {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		window.textBox("siteTextField").enterText("s");
+		window.textBox("passwordMainPasswordField").enterText("p");
+		window.textBox("userTextField").enterText("u");
+		window.button("addButton").requireEnabled();
+	}
+	
+	@Test
 	public void testMainPaneAddButtonWhenShouldDelegatePasswordControllerSavePasswordWhenNoPasswordIsSelected() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
@@ -358,9 +456,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("userTextField").enterText("u");
 		window.textBox("passwordMainPasswordField").enterText("p");
 		window.button("addButton").click();
-		verify(passwordController)
-				.savePassword(argThat(password -> password.getSite().equals("s") && password.getUsername().equals("u")
-						&& decrypt(password).equals("p") && password.getUser().getId().equals(u1.getId())));
+		verify(passwordController).savePassword(argThat(password -> password.getSite().equals("s") && password.getUsername().equals("u")&& decrypt(password, u1.getPassword()).equals("p") && password.getUserId().equals(u1.getId())));
 	}
 
 	@Test
@@ -383,7 +479,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		Password p = new Password("s", "u", "p", u1);
+		Password p = new Password("s", "u", "p", u1.getId(), u1.getPassword());
 		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(p));
 		window.list("passwordList").selectItem(0);
 		window.textBox("siteTextField").enterText("1");
@@ -392,16 +488,16 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("addButton").click();
 		verify(passwordController)
 				.savePassword(argThat(password -> password.getSite().equals("s1") && password.getUsername().equals("u1")
-						&& decrypt(password).equals("p1") && password.getUser().getId().equals(u1.getId())));
+						&& decrypt(password, u1.getPassword()).equals("p1") && password.getUserId().equals(u1.getId())));
 	}
 
 	@Test
-	public void testMainPanetextFieldShouldBePopulatedAndChangeAddButtonTextToSaveOnlyWhenAPasswordIsSelectedAndClearAllWhenDeselected()
+	public void testMainPanetextFieldShouldBePopulatedAndChangeAddButtonTextToSaveOnlyWhenAPasswordIsSelectedAndClearAllWhenClickDeselectButton()
 			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
-		Password p = new Password("s", "u", "p", u1);
+		Password p = new Password("s", "u", "p", u1.getId(), u1.getPassword());
 		List<Password> l = new ArrayList<Password>();
 		l.add(p);
 		u1.setSitePasswords(l);
@@ -419,16 +515,14 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordMainPasswordField").requireText("p");
 		assertEquals("saveIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
 		GuiActionRunner.execute(() -> window.label("errorMainLabel").target().setText("a"));
-		Point outsidePoint = new Point(window.list("passwordList").target().getWidth() + 100,
-				window.list("passwordList").target().getHeight());
-		window.robot().click(passwordManagerView, outsidePoint);
-		//GuiActionRunner.execute(() -> Thread.sleep(500));
+		window.button("clearSelectionButton").click();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
 		window.textBox("passwordMainPasswordField").requireText("");
 		window.button("deleteButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("showPasswordToggle").requireDisabled();
+		window.button("clearSelectionButton").requireDisabled();
 		window.label("errorMainLabel").requireText("");
 		assertEquals("addIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
 	}
@@ -439,7 +533,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1)));
+				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		JButtonFixture deleteButton = window.button("deleteButton");
 		deleteButton.requireEnabled();
@@ -453,12 +547,12 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1)));
+				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		window.button("deleteButton").click();
 		verify(passwordController)
 				.deletePassword(argThat(password -> password.getSite().equals("s") && password.getUsername().equals("u")
-						&& decrypt(password).equals("p") && password.getUser().getId().equals(u1.getId())));
+						&& decrypt(password, u1.getPassword()).equals("p") && password.getUserId().equals(u1.getId())));
 
 	}
 
@@ -468,7 +562,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1)));
+				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		JButtonFixture copyButton = window.button("copyButton");
 		copyButton.requireEnabled();
@@ -483,7 +577,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner.execute(
-				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass", u1)));
+				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		window.button("copyButton").click();
 		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
@@ -518,7 +612,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1)));
+				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 
 		window.textBox("siteTextField").enterText("s");
@@ -575,7 +669,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1)));
+				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		JPasswordField p = (JPasswordField) window.textBox("passwordMainPasswordField").target();
 		window.button("showPasswordToggle").click();
@@ -594,7 +688,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		GuiActionRunner.execute(
-				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass1", u1)));
+				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass1", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		window.textBox("passwordMainPasswordField").focus();
 		window.textBox("passwordMainPasswordField").selectAll();
@@ -640,8 +734,8 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		Password p1 = new Password("s1", "u1", "p1", u1);
-		Password p2 = new Password("s2", "u2", "p2", u1);
+		Password p1 = new Password("s1", "u1", "p1", u1.getId(), u1.getPassword());
+		Password p2 = new Password("s2", "u2", "p2", u1.getId(), u1.getPassword());
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Password> listPasswordModel = passwordManagerView.getListPasswordModel();
 			listPasswordModel.addElement(p1);
@@ -655,6 +749,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("deleteButton").requireDisabled();
+		window.button("clearSelectionButton").requireDisabled();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
 		window.textBox("passwordMainPasswordField").requireText("");
@@ -670,9 +765,9 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		Password p1 = new Password("s1", "u1", "p1", u1);
+		Password p1 = new Password("s1", "u1", "p1", u1.getId(), u1.getPassword());
 		p1.setId(1);
-		Password p2 = new Password("s2", "u2", "p2", u1);
+		Password p2 = new Password("s2", "u2", "p2", u1.getId(), u1.getPassword());
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Password> listPasswordModel = passwordManagerView.getListPasswordModel();
 			listPasswordModel.addElement(p1);
@@ -687,6 +782,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("deleteButton").requireDisabled();
+		window.button("clearSelectionButton").requireDisabled();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
 		window.textBox("passwordMainPasswordField").requireText("");
@@ -702,9 +798,9 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		Password p1 = new Password("s1", "u1", "p1", u1);
+		Password p1 = new Password("s1", "u1", "p1", u1.getId(), u1.getPassword());
 		p1.setId(1);
-		Password p2 = new Password("s2", "u2", "p2", u1);
+		Password p2 = new Password("s2", "u2", "p2", u1.getId(), u1.getPassword());
 		p1.setId(2);
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Password> listPasswordModel = passwordManagerView.getListPasswordModel();
@@ -724,6 +820,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("deleteButton").requireDisabled();
+		window.button("clearSelectionButton").requireDisabled();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
 		window.textBox("passwordMainPasswordField").requireText("");
@@ -737,21 +834,21 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		u1.setId(1);
-		Password p =new Password("s", "u", "p", u1);
-		p.setPassword("dsds");
+		Password p =new Password("s", "u", "p", u1.getId(), u1.getPassword());
+		p.setPassword("dsds", u1.getPassword());
 		p.setSalt(new byte[12]);
 		String decrypted = GuiActionRunner.execute(() -> { return passwordManagerView.decryptPassword(p);});
 		assertNull(decrypted);
 		assertNotEquals(window.label("errorMainLabel").target().getText(),"");
     }
 	
-	private String decrypt(Password password) {
+	private String decrypt(Password password, String userHashedPassword) {
 		SecretKeyFactory factory;
 		String decryptedPassword = null;
 
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			PBEKeySpec spec = new PBEKeySpec(password.getUser().getPassword().toCharArray(), password.getSalt(), 65536,
+			PBEKeySpec spec = new PBEKeySpec(userHashedPassword.toCharArray(), password.getSalt(), 65536,
 					256);
 			byte[] key = factory.generateSecret(spec).getEncoded();
 			SecretKeySpec secretKey = new SecretKeySpec(key, "AES");

@@ -85,27 +85,25 @@ public class PasswordControllerRaceConditionIT {
 
 	@Test
 	public void testNewPassword() throws InterruptedException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password password = new Password("s1", "u1", "pass1", user);
+		Password password = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		int numberOfThreads = 10;
 		CountDownLatch latch = new CountDownLatch(numberOfThreads); // Number of threads
 		IntStream.range(0, numberOfThreads).mapToObj(i -> new Thread(() -> {
 			new PasswordController(view, passwordRepository).savePassword(password);
 			latch.countDown();
 		})).peek(t -> t.start()).collect(Collectors.toList());
-		// wait for all the threads to finish
 		latch.await();
-		// there should be a single element in the list
 		List<Password> passwordFound = readAllPasswordsFromDatabase();
 		assertEquals(1, passwordFound.size());
 		Password p = passwordFound.get(0);
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 	
 	@Test
 	public void testUpdatePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InterruptedException {
-		Password password = new Password("s1", "u1", "pass1", user);
+		Password password = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		new PasswordController(view, passwordRepository).savePassword(password);
 		int numberOfThreads = 10;
 		CountDownLatch latch = new CountDownLatch(numberOfThreads); // Number of threads
@@ -115,15 +113,13 @@ public class PasswordControllerRaceConditionIT {
 			new PasswordController(view, passwordRepository).savePassword(password);
 			latch.countDown();
 		})).peek(t -> t.start()).collect(Collectors.toList());
-		// wait for all the threads to finish
 		latch.await();
-		// there should be a single element in the list
 		List<Password> passwordFound = readAllPasswordsFromDatabase();
 		assertEquals(1, passwordFound.size());
 		Password p = passwordFound.get(0);
 		assertTrue(p.getUsername().equals("u9") && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals("s9")
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	private List<Password> readAllPasswordsFromDatabase() {

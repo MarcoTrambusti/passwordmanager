@@ -75,13 +75,13 @@ public class PasswordRepositoryIT {
 	@Test
 	public void testSavePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		passwordRepository.save(password);
 		assertEquals(1, readAllPasswordsFromDatabase().size());
 		Password p = readAllPasswordsFromDatabase().get(0);
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class PasswordRepositoryIT {
 		Password p = passwordRepository.findById(password.getId());
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class PasswordRepositoryIT {
 	}
 
 	private void clearTable() {
-		Session session = factory.openSession();
+		session = factory.openSession();
 		session.beginTransaction();
 		session.createNativeQuery("DELETE FROM passwords;").executeUpdate();
 		session.getTransaction().commit();
@@ -114,7 +114,7 @@ public class PasswordRepositoryIT {
 			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = null;
-		password = new Password(site, username, pass, user);
+		password = new Password(site, username, pass, user.getId(), user.getPassword());
 		session = factory.openSession();
 		session.beginTransaction();
 		session.save(password);
