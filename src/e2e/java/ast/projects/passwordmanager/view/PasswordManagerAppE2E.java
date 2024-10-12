@@ -5,7 +5,6 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -103,7 +102,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Login")).click();
 		window.panel("mainPane").requireVisible();
 		String[] listContents = window.list().contents();
-		assertTrue(listContents.length == 1);
+		assertEquals(1,listContents.length);
 	}
 
 	@Test
@@ -126,7 +125,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Register")).click();
 		window.panel("mainPane").requireVisible();
 		String[] listContents = window.list().contents();
-		assertTrue(listContents.length == 0);
+		assertEquals(0,listContents.length);
 	}
 
 	@Test
@@ -250,7 +249,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Login")).click();
 		String[] listContents = window.list().contents();
-		assertTrue(listContents.length == 1);
+		assertEquals(1, listContents.length);
 		window.menuItemWithPath("Logout").click();
 		window.textBox("usrmailTextField").enterText("mariorossitodel");
 		window.textBox("passwordPasswordField").enterText("Password123!");

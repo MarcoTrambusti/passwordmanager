@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -19,6 +22,7 @@ import javax.persistence.OptimisticLockException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -64,7 +68,7 @@ public class PasswordRepositoryImplTest {
 
 	@Before
 	public void setupRepo() {
-		Session session = passwordRepository.getSessionFactory().openSession();
+		session = passwordRepository.getSessionFactory().openSession();
 		session.beginTransaction();
 		session.createNativeQuery("DELETE FROM passwords;").executeUpdate();
 		session.getTransaction().commit();
@@ -72,14 +76,14 @@ public class PasswordRepositoryImplTest {
 	}
 
 	@AfterClass
-	public static void tearDown() throws Exception {
+	public static void tearDown() {
 		factory.close();
 	}
 
 	@Test
 	public void testSavePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		passwordRepository.save(password);
 		session = passwordRepository.getCurrentSession();
 		assertEquals(TransactionStatus.COMMITTED, session.getTransaction().getStatus());
@@ -88,14 +92,14 @@ public class PasswordRepositoryImplTest {
 		Password p = readAllPasswordsFromDatabase().get(0);
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	@Test
 	public void testSavePasswordWhenAlreadyPresentForThatSite() throws InvalidKeyException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		 addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
-		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		assertThrows(ConstraintViolationException.class, () -> passwordRepository.save(password));
 		session = passwordRepository.getCurrentSession();
 		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
@@ -105,7 +109,7 @@ public class PasswordRepositoryImplTest {
 	@Test
 	public void testUpdatePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
-		password.setPassword("newPass123!");
+		password.setPassword("newPass123!", user.getPassword());
 		password.setUsername("newuser");
 		passwordRepository.save(password);
 		session = passwordRepository.getCurrentSession();
@@ -115,14 +119,14 @@ public class PasswordRepositoryImplTest {
 		Password p = readAllPasswordsFromDatabase().get(0);
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	@Test
 	public void testUpdatePasswordWhenNotInDb() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		password.setId(2);
-		password.setPassword("newPass123!");
+		password.setPassword("newPass123!", user.getPassword());
 		password.setUsername("newuser");
 		assertThrows(OptimisticLockException.class, () -> passwordRepository.save(password));
 		session = passwordRepository.getCurrentSession();
@@ -146,7 +150,7 @@ public class PasswordRepositoryImplTest {
 		assertFalse(session.isOpen());
 		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUser().getId().equals(password.getUser().getId()));
+				&& p.getUserId().equals(password.getUserId()));
 	}
 
 	@Test
@@ -162,17 +166,34 @@ public class PasswordRepositoryImplTest {
 	@Test
 	public void testDeletePasswordThatIsNotInDB() throws InvalidKeyException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password password = new Password("test", "mariorossi", "Prova123!", user);
+		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		password.setId(1);
 		assertThrows(OptimisticLockException.class, () -> passwordRepository.delete(password));
 		session = passwordRepository.getCurrentSession();
 		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
 		assertFalse(session.isOpen());
 	}
+	
+	@Test
+    public void testDeleteRollback() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		SessionFactory spiedFactory = spy(factory);
+		Session spiedSession = spy(spiedFactory.openSession());
+		Transaction spiedTransaction = spy(spiedSession.getTransaction());
+		PasswordRepositoryImpl spiedPassswordRepo = spy(passwordRepository);
+		Password password = addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
+	    doReturn(spiedFactory).when(spiedPassswordRepo).getSessionFactory();
+	    doReturn(spiedSession).when(spiedFactory).openSession();
+	    doReturn(spiedTransaction).when(spiedSession).getTransaction();
+		doThrow(new RuntimeException("Simulated exception")).when(spiedTransaction).commit();
+		assertThrows(RuntimeException.class, () -> spiedPassswordRepo.delete(password));
+		session = spiedPassswordRepo.getCurrentSession();
+		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+	}
 
 	private Password addTestPasswordToDatabase(String site, String username, String pass, User user) throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = null;
-		password = new Password(site, username, pass, user);
+		password = new Password(site, username, pass, user.getId(), user.getPassword());
 		session = factory.openSession();
 		session.beginTransaction();
 		session.save(password);

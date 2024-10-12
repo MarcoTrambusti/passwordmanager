@@ -53,23 +53,11 @@ public class PasswordControllerTest {
 		closeable.close();
 	}
 	
-//	@Test
-//	public void testFindAllPasswordByUser() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-//		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-//		user.setId(1);
-//		passwordController.findAllbyUser(user);
-//		
-//		List<Password> passwords = asList(new Password("prova", "mario", "password12!", user));
-//		when(passwordRepository.findAllByUser(user)).thenReturn(passwords);
-//		passwordController.findAllbyUser(user);
-//		verify(view).showAllPasswords(passwords);
-//	}
-	
 	@Test
 	public void testSavePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		user.setId(1);
-		Password password = new Password("prova", "mario", "password12!", user);
+		Password password = new Password("prova", "mario", "password12!", user.getId(), user.getPassword());
 		passwordController.savePassword(password);
 
 		InOrder inOrder = inOrder(passwordRepository, view);
@@ -81,7 +69,7 @@ public class PasswordControllerTest {
 	public void testSavePasswordThrowsException() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		user.setId(1);
-		Password password = new Password("prova", "mario", "password12!", user);
+		Password password = new Password("prova", "mario", "password12!", user.getId(), user.getPassword());
 		Mockito.doThrow(new ConstraintViolationException("", null, "")).when(passwordRepository).save(password);
 
 		passwordController.savePassword(password);
@@ -93,7 +81,7 @@ public class PasswordControllerTest {
 	public void testDeletePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		user.setId(1);
-		Password password = new Password("prova", "mario", "password12!", user);
+		Password password = new Password("prova", "mario", "password12!", user.getId(), user.getPassword());
 		passwordController.deletePassword(password);
 		InOrder inOrder = inOrder(passwordRepository, view);
 		inOrder.verify(passwordRepository).delete(password);
@@ -104,7 +92,7 @@ public class PasswordControllerTest {
 	public void testDeletePasswordThrowsException() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		user.setId(1);
-		Password password = new Password("prova", "mario", "password12!", user);
+		Password password = new Password("prova", "mario", "password12!", user.getId(), user.getPassword());
 		Mockito.doThrow(new ConstraintViolationException("Password not exists", null, "")).when(passwordRepository).delete(password);
 
 		passwordController.deletePassword(password);

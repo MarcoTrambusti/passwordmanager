@@ -33,10 +33,6 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
-//	void setSessionFactory(SessionFactory sessionFactory) {
-//		this.sessionFactory = sessionFactory;
-//	}
-
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
 	}
@@ -126,11 +122,4 @@ public class UserRepositoryImpl implements UserRepository {
 		return result;
 	}
 
-//	public void clearDb() {
-//		Session session = getSessionFactory().openSession();
-//		session.beginTransaction();
-//		session.createNativeQuery("DELETE FROM users;").executeUpdate();
-//		session.getTransaction().commit();
-//		session.close();
-//	}
 }

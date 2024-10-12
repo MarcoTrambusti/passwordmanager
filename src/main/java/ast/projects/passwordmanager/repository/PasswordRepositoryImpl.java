@@ -77,8 +77,4 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 		return sessionFactory;
 	}
 
-//	public void setSessionFactory(SessionFactory sessionFactory) {
-//		this.sessionFactory = sessionFactory;
-//	}
-
 }

@@ -6,6 +6,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import javax.persistence.OptimisticLockException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -60,7 +64,7 @@ public class UserRepositoyImplTest {
 	}
 
 	@AfterClass
-	public static void tearDown() throws Exception {
+	public static void tearDown() {
 		factory.close();
 	}
 
@@ -138,7 +142,6 @@ public class UserRepositoyImplTest {
 	public void testFindByEmailFound() {
 		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		User u = userRepository.findByEmail("mariorossi@gmail.com");
-		// assertNotNull(session);
 		session = userRepository.getCurrentSession();
 		assertFalse(session.isOpen());
 		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
@@ -185,6 +188,23 @@ public class UserRepositoyImplTest {
 		user.setId(1);
 		assertThrows(OptimisticLockException.class, () -> userRepository.delete(user));
 		session = userRepository.getCurrentSession();
+		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
+		assertFalse(session.isOpen());
+	}
+	
+	@Test
+    public void testDeleteRollback() {
+		SessionFactory spiedFactory = spy(factory);
+		Session spiedSession = spy(spiedFactory.openSession());
+		Transaction spiedTransaction = spy(spiedSession.getTransaction());
+		UserRepositoryImpl spiedPassswordRepo = spy(userRepository);
+		User user = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
+	    doReturn(spiedFactory).when(spiedPassswordRepo).getSessionFactory();
+	    doReturn(spiedSession).when(spiedFactory).openSession();
+	    doReturn(spiedTransaction).when(spiedSession).getTransaction();
+		doThrow(new RuntimeException("Simulated exception")).when(spiedTransaction).commit();
+		assertThrows(RuntimeException.class, () -> spiedPassswordRepo.delete(user));
+		session = spiedPassswordRepo.getCurrentSession();
 		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
 		assertFalse(session.isOpen());
 	}

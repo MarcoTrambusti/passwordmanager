@@ -107,7 +107,7 @@ public class UserRepositoryTestcontainersIT {
 	}
 	
 	private void clearTable() {
-		Session session = factory.openSession();
+		session = factory.openSession();
 		session.beginTransaction();
 		session.createNativeQuery("DELETE FROM users;").executeUpdate();
 		session.getTransaction().commit();

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -81,7 +80,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		userRepository.save(user);
 		User user2 = new User("newUser", "newuser@gmail.com", "newPassword123!");
 		userRepository.save(user2);
-		p1 = new Password("s1", "u1", "p1", user);
+		p1 = new Password("s1", "u1", "p1", user.getId(), user.getPassword());
 		passwordRepository.save(p1);
 	}
 
@@ -247,7 +246,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testUpdatePasswordUpdatingAllFieldsButtonSuccess() throws HeadlessException, UnsupportedFlavorException, IOException {
+	public void testUpdatePasswordUpdatingAllFieldsButtonSuccess() throws HeadlessException{
 		window.textBox("usrmailTextField").setText("mariorossi@");
 		window.textBox("usrmailTextField").enterText("gmail.com");
 		window.textBox("passwordPasswordField").enterText("Password123!");
@@ -296,7 +295,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Login")).click();
 		String[] listContents = window.list().contents();
-		assertTrue(listContents.length == 1);
+		assertEquals(1, listContents.length);
 		window.menuItemWithPath("Logout").click();
 		window.textBox("usrmailTextField").setText("newuser@");
 		window.textBox("usrmailTextField").enterText("gmail.com");

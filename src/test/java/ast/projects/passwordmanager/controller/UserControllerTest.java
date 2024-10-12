@@ -169,9 +169,4 @@ public class UserControllerTest {
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
 	}
 	
-//	@Test
-//	public void testCloseFactory() {
-//		userController.closeFactory();
-//		verify(userRepository).closeFactory();
-//	}
 }

@@ -88,18 +88,18 @@ public class PasswordControllerIT {
 	}
 
 	@Test
-	public void testNewUser() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password p1 = new Password("s1", "u1", "pass1", user);
+	public void testNewPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		Password p1 = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		passwordController.savePassword(p1);
-		Password p = passwordRepository.findById(p1.getId());
+		Password p = userRepository.findByUsername(user.getUsername()).getSitePasswords().get(0);
 		assertTrue(p.getSite().equals("s1") && p.getUsername().equals("u1")
-				&& decrypt(p).equals("pass1") && p.getUser().getId().equals(user.getId()));
+				&& decrypt(p, user.getPassword()).equals("pass1") && p.getUserId().equals(user.getId()));
 		verify(view).passwordAddedOrUpdated(p1);
 	}
 
 	@Test
-	public void testDeleteUser() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		Password p1 = new Password("s1", "u1", "pass1", user);
+	public void testDeletePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		Password p1 = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		passwordController.savePassword(p1);
 		passwordController.deletePassword(p1);
 		assertNull(passwordRepository.findById(p1.getId()));
@@ -114,15 +114,15 @@ public class PasswordControllerIT {
 		session.close();
 	}
 	
-	private String decrypt(Password password) {
-		SecretKeyFactory factory;
+	private String decrypt(Password password, String userHashedPsw) {
+		SecretKeyFactory secretKeyFactory;
 		String decryptedPassword = null;
 
 		try {
-			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			PBEKeySpec spec = new PBEKeySpec(password.getUser().getPassword().toCharArray(), password.getSalt(), 65536,
+			secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+			PBEKeySpec spec = new PBEKeySpec(userHashedPsw.toCharArray(), password.getSalt(), 65536,
 					256);
-			byte[] key = factory.generateSecret(spec).getEncoded();
+			byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
 			SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, password.getIv()));
