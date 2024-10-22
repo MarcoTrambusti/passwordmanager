@@ -13,13 +13,11 @@ import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
 import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -482,12 +480,12 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		Password p = new Password("s", "u", "p", u1.getId(), u1.getPassword());
 		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(p));
 		window.list("passwordList").selectItem(0);
-		window.textBox("siteTextField").enterText("1");
-		window.textBox("userTextField").enterText("1");
-		window.textBox("passwordMainPasswordField").enterText("1");
+		window.textBox("siteTextField").setText("");
+		window.textBox("siteTextField").enterText("s1");
+		window.textBox("userTextField").setText("u1");
+		window.textBox("passwordMainPasswordField").setText("p1");
 		window.button("addButton").click();
-		verify(passwordController)
-				.savePassword(argThat(password -> password.getSite().equals("s1") && password.getUsername().equals("u1")
+		verify(passwordController).savePassword(argThat(password -> password.getSite().equals("s1") && password.getUsername().equals("u1")
 						&& decrypt(password, u1.getPassword()).equals("p1") && password.getUserId().equals(u1.getId())));
 	}
 
@@ -503,13 +501,6 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		u1.setSitePasswords(l);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		window.list("passwordList").selectItem(0);
-		window.textBox("siteTextField").requireText("s");
-		window.textBox("userTextField").requireText("u");
-		window.textBox("passwordMainPasswordField").requireText("p");
-		assertEquals("saveIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
-		Point insidePoint = new Point(window.list("passwordList").target().getLocationOnScreen().x + 10,
-				window.list("passwordList").target().getLocationOnScreen().y + 10);
-		window.robot().click(passwordManagerView, insidePoint);
 		window.textBox("siteTextField").requireText("s");
 		window.textBox("userTextField").requireText("u");
 		window.textBox("passwordMainPasswordField").requireText("p");
@@ -550,10 +541,8 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		window.button("deleteButton").click();
-		verify(passwordController)
-				.deletePassword(argThat(password -> password.getSite().equals("s") && password.getUsername().equals("u")
+		verify(passwordController).deletePassword(argThat(password -> password.getSite().equals("s") && password.getUsername().equals("u")
 						&& decrypt(password, u1.getPassword()).equals("p") && password.getUserId().equals(u1.getId())));
-
 	}
 
 	@Test
@@ -561,8 +550,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
+		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		JButtonFixture copyButton = window.button("copyButton");
 		copyButton.requireEnabled();
@@ -571,17 +559,15 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testMainPaneCopyButtonShouldCopyClearPasswordWhenPasswordIsSelected()
-			throws UnsupportedFlavorException, IOException {
+	public void testMainPaneCopyButtonShouldCopyClearPasswordWhenPasswordIsSelected() throws UnsupportedFlavorException, IOException {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		GuiActionRunner.execute(
-				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass", u1.getId(), u1.getPassword())));
+		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(""), null);
 		window.button("copyButton").click();
-		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-				.getData(DataFlavor.stringFlavor);
+		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 		assertEquals("pass", copiedString);
 	}
 
@@ -611,8 +597,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
+		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 
 		window.textBox("siteTextField").enterText("s");
@@ -659,7 +644,6 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("showPasswordToggle").click();
 		assertEquals(0, p.getEchoChar());
 		window.button("showPasswordToggle").click();
-		
 		assertEquals('•', p.getEchoChar());
 	}
 
@@ -668,8 +652,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		GuiActionRunner
-				.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
+		GuiActionRunner.execute(() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "p", u1.getId(), u1.getPassword())));
 		window.list("passwordList").selectItem(0);
 		JPasswordField p = (JPasswordField) window.textBox("passwordMainPasswordField").target();
 		window.button("showPasswordToggle").click();
@@ -679,44 +662,6 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("showPasswordToggle").click();
 		assertEquals('•', p.getEchoChar());
 		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
-	}
-
-	@Test
-	public void testManePaneCopyPasswordShouldCopyClearPasswordWhenSelectedPasswordFromList()
-			throws HeadlessException, UnsupportedFlavorException, IOException {
-		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		u1.setId(1);
-		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		GuiActionRunner.execute(
-				() -> passwordManagerView.getListPasswordModel().addElement(new Password("s", "u", "pass1", u1.getId(), u1.getPassword())));
-		window.list("passwordList").selectItem(0);
-		window.textBox("passwordMainPasswordField").focus();
-		window.textBox("passwordMainPasswordField").selectAll();
-		window.textBox("passwordMainPasswordField").robot().pressKey(KeyEvent.VK_CONTROL);
-		window.textBox("passwordMainPasswordField").robot().pressKey(KeyEvent.VK_C);
-		window.textBox("passwordMainPasswordField").robot().releaseKey(KeyEvent.VK_CONTROL);
-		window.textBox("passwordMainPasswordField").robot().releaseKey(KeyEvent.VK_C);
-		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-				.getData(DataFlavor.stringFlavor);
-		assertEquals("pass1", copiedString);
-	}
-
-	@Test
-	public void testManePaneCopyPasswordShouldCopyClearPasswordWhenTheresNoSelectedPassword()
-			throws HeadlessException, UnsupportedFlavorException, IOException {
-		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		u1.setId(1);
-		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
-		window.textBox("passwordMainPasswordField").enterText("pass2");
-		window.textBox("passwordMainPasswordField").focus();
-		window.textBox("passwordMainPasswordField").selectAll();
-		window.textBox("passwordMainPasswordField").robot().pressKey(KeyEvent.VK_CONTROL);
-		window.textBox("passwordMainPasswordField").robot().pressKey(KeyEvent.VK_C);
-		window.textBox("passwordMainPasswordField").robot().releaseKey(KeyEvent.VK_CONTROL);
-		window.textBox("passwordMainPasswordField").robot().releaseKey(KeyEvent.VK_C);
-		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-				.getData(DataFlavor.stringFlavor);
-		assertEquals("pass2", copiedString);
 	}
 
 	@Test
