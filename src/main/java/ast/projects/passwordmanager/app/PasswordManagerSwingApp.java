@@ -43,8 +43,6 @@ public class PasswordManagerSwingApp {
 				String dbHost = prop.getProperty(APP_DB_HOST) != null ? prop.getProperty(APP_DB_HOST) : "localhost";
 				String dbPort = prop.getProperty("app.db_port") != null ? prop.getProperty("app.db_port") : "3306";
 
-				LogManager.getLogger().info("port: ".concat(prop.getProperty(APP_DB_HOST)));
-
 				String url = "jdbc:mariadb://" + dbHost + ":" + dbPort + "/";
 
 				String username = prop.getProperty("app.mariadb_username");
@@ -52,6 +50,7 @@ public class PasswordManagerSwingApp {
 				String sqlFilePath = "./mariadb-init.sql";
 
 				initDB(url, username, password, sqlFilePath);
+				LogManager.getLogger().info("URL: ".concat(url));
 
 				SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", url+"password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 
@@ -87,12 +86,12 @@ public class PasswordManagerSwingApp {
 
 		try (Connection connection = DriverManager.getConnection(url, username, password);
 				BufferedReader reader = new BufferedReader(new FileReader(sqlFilePath))) {
-			String sql;
-			while ((sql = reader.readLine()) != null) {
-				try (Statement statement = connection.createStatement()) {
-					statement.execute(sql);
+				String sql;
+				while ((sql = reader.readLine()) != null) {
+					try (Statement statement = connection.createStatement()) {
+						statement.execute(sql);
+					}
 				}
-			}
 
 		} catch (SQLException | IOException e) {
 			LogManager.getLogger().debug(e.getStackTrace());

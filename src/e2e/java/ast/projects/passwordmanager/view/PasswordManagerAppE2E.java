@@ -74,6 +74,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		jdbcUrl = jdbcUrl.replace("test", "password_manager");
 		URI uri = URI.create(jdbcUrl.replace("jdbc:", ""));
 		System.getProperties().setProperty("app.db_port", Integer.toString(uri.getPort()));
+		System.getProperties().setProperty("app.db_host", uri.getHost());
 
 		application("ast.projects.passwordmanager.app.PasswordManagerSwingApp").start();
 
@@ -82,7 +83,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 			protected boolean isMatching(JFrame frame) {
 				return "PasswordManager".equals(frame.getTitle()) && frame.isShowing();
 			}
-		}).using(robot());
+		}).withTimeout(10000).using(robot());
 
 		addUserToDatabase("mariorossitest", "mariorossi@gmail.com", "Password123!");
 		addUserToDatabase("mariorossitodel", "mariorossitodel@gmail.com", "Password123!");

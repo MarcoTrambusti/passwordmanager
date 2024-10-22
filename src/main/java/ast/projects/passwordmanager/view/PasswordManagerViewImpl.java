@@ -331,7 +331,6 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		passwordFieldMain.addKeyListener(btnAddEnabler);
 		passwordFieldMain.addKeyListener(togglePasswordEnabler);
 		passwordFieldMain.setName("passwordMainPasswordField");
-		passwordFieldMain.putClientProperty("JPasswordField.cutCopyAllowed", true);
 		GridBagConstraints gbcPasswordFieldMain = new GridBagConstraints();
 		gbcPasswordFieldMain.insets = new Insets(0, 0, 5, 5);
 		gbcPasswordFieldMain.fill = GridBagConstraints.HORIZONTAL;
@@ -597,7 +596,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		StringSelection stringSelection;
 		stringSelection = new StringSelection(decryptPassword(selectedPassword));
-		clipboard.setContents(stringSelection, stringSelection);
+		clipboard.setContents(stringSelection, null);
 	}
 
 	@Override
