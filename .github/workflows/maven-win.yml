@@ -32,7 +32,7 @@ jobs:
 
     - name: Start Docker service in WSL
       run: |
-        wsl -- sudo service docker start
+        wsl -- sudo dockerd-for-linux &
 
     - name: Cache Maven packages
       uses: actions/cache@v2
