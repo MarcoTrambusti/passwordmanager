@@ -27,8 +27,6 @@ jobs:
         distribution: 'Ubuntu-20.04'
         update: true
         additional-packages: 'docker.io'
-    - name: Docker info
-      run: docker info
     - name: Cache Maven packages
       uses: actions/cache@v2
       with:
