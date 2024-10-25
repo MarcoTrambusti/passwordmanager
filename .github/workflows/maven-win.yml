@@ -30,9 +30,14 @@ jobs:
         update: true
         additional-packages: 'docker.io'
 
+    - name: Install Docker in WSL
+      run: |
+        wsl -- sudo apt-get update
+        wsl -- sudo apt-get install -y docker.io
+
     - name: Start Docker service in WSL
       run: |
-        wsl -- sudo dockerd-for-linux &
+        wsl -- sudo service docker start
 
     - name: Cache Maven packages
       uses: actions/cache@v2
