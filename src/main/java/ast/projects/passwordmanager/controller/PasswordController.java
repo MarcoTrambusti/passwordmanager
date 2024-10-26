@@ -18,7 +18,7 @@ public class PasswordController {
 			passwordRepository.save(password);
 			pwdmngrView.passwordAddedOrUpdated(password);
 		} catch (Exception e) {
-			pwdmngrView.showError("password non valida o già presente per questa coppia sito-utente", null, "errorLabel_main");
+			pwdmngrView.showError("Errore durante il salvataggio della password", null, "errorLabel_main");
 		}
 	}
 
@@ -27,7 +27,7 @@ public class PasswordController {
 			passwordRepository.delete(password);
 			pwdmngrView.passwordDeleted(password);
 		} catch (Exception e) {
-			pwdmngrView.showError("password non presente o già eliminata", password, "errorLabel_main");
+			pwdmngrView.showError("Errore durante l'eliminazione della password", password, "errorLabel_main");
 		}
 	}
 }

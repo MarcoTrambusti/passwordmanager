@@ -64,7 +64,7 @@ public class UserControllerTest {
 		Mockito.doThrow(new ConstraintViolationException("Username already exists", null, "")).when(userRepository).save(user);
 
 		userController.newUser(user);
-	    verify(view).showError("Utente con username o mail già registrato", null, "errorLabel_register");
+	    verify(view).showError("Errore nella registrazione dell'utente. Riprovare con altri dati utente", null, "errorLabel_register");
 		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
@@ -85,7 +85,7 @@ public class UserControllerTest {
 		Mockito.doThrow(new OptimisticLockException("User not  exists", null, "")).when(userRepository).delete(user);
 	    
 		userController.deleteUser(user);
-	    verify(view).showError("Errore nell'eliminazione dell'utente: utente non trovato o già eliminato. Logout...", user, "errorLabel_main");
+	    verify(view).showError("Errore nell'eliminazione dell'utente. Logout...", user, "errorLabel_main");
 		verify(view, timeout(4000)).userLogout();
 		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
@@ -141,7 +141,7 @@ public class UserControllerTest {
 	}
 	
 	@Test
-	public void testLoginWhitIncorrectEmailAndCoorrectPassword() {
+	public void testLoginWhitIncorrectEmailAndCorrectPassword() {
 		when(userRepository.findByEmail("wrong@gmail.com")).thenReturn(null);
 		
 		userController.login("wrong@gmail.com", "Password123@");

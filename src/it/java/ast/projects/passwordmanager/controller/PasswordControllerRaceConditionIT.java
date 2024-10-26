@@ -106,10 +106,10 @@ public class PasswordControllerRaceConditionIT {
 		Password password = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		new PasswordController(view, passwordRepository).savePassword(password);
 		int numberOfThreads = 10;
-		CountDownLatch latch = new CountDownLatch(numberOfThreads); // Number of threads
+		CountDownLatch latch = new CountDownLatch(numberOfThreads);
 		IntStream.range(0, numberOfThreads).mapToObj(i -> new Thread(() -> {
-			password.setUsername("u"+i);
-			password.setSite("s"+i);
+			password.setUsername("u2");
+			password.setSite("s2");
 			new PasswordController(view, passwordRepository).savePassword(password);
 			latch.countDown();
 		})).peek(t -> t.start()).collect(Collectors.toList());
@@ -117,8 +117,8 @@ public class PasswordControllerRaceConditionIT {
 		List<Password> passwordFound = readAllPasswordsFromDatabase();
 		assertEquals(1, passwordFound.size());
 		Password p = passwordFound.get(0);
-		assertTrue(p.getUsername().equals("u9") && p.getId().equals(password.getId())
-				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals("s9")
+		assertTrue(p.getUsername().equals("u2") && p.getId().equals(password.getId())
+				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals("s2")
 				&& p.getUserId().equals(password.getUserId()));
 	}
 

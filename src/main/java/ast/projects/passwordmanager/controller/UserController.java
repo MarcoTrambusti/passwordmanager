@@ -24,7 +24,7 @@ public class UserController {
 			userRepository.save(user);
 			pwdmngrView.userLoggedOrRegistered(user);
 		} catch (Exception e) {
-			pwdmngrView.showError("Utente con username o mail già registrato", null, "errorLabel_register");
+			pwdmngrView.showError("Errore nella registrazione dell'utente. Riprovare con altri dati utente", null, "errorLabel_register");
 		}
 	}
 
@@ -33,7 +33,7 @@ public class UserController {
 			userRepository.delete(user);
 			pwdmngrView.userLogout();
 		} catch (Exception e) {
-			pwdmngrView.showError("Errore nell'eliminazione dell'utente: utente non trovato o già eliminato. Logout...",user, "errorLabel_main");
+			pwdmngrView.showError("Errore nell'eliminazione dell'utente. Logout...",user, "errorLabel_main");
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
 				@Override

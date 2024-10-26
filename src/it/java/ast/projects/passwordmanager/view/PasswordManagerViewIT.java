@@ -153,7 +153,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("emailRegTextField").enterText("gmail.com");
 		window.textBox("passwordRegPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Register")).click();
-		window.label("errorRegLabel").requireText("Utente con username o mail già registrato");
+		window.label("errorRegLabel").requireText("Errore nella registrazione dell'utente. Riprovare con altri dati utente");
 	}
 	
 	@Test
@@ -185,7 +185,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Login")).click();
 		userRepository.delete(user);
 		window.menuItemWithPath("Delete user").click();
-		assertThat(window.label("errorMainLabel").text()).contains("Errore nell'eliminazione dell'utente: utente non trovato o già eliminato. Logout...", user.getUsername());
+		assertThat(window.label("errorMainLabel").text()).contains("Errore nell'eliminazione dell'utente. Logout...", user.getUsername());
 
 		JPanel target = window.panel("mainPane").target();
 		pause(new Condition("OK button to be enabled") {
@@ -224,7 +224,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("userTextField").enterText("u1");
 		window.textBox("passwordMainPasswordField").enterText("p2");
 		window.button("addButton").click();
-		window.label("errorMainLabel").requireText("password non valida o già presente per questa coppia sito-utente");
+		window.label("errorMainLabel").requireText("Errore durante il salvataggio della password");
 	}
 	
 	@Test
@@ -285,7 +285,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.list("passwordList").selectItem(0);
 		passwordRepository.delete(p);
 		window.button("deleteButton").click();
-		assertThat(window.label("errorMainLabel").text()).contains("password non presente o già eliminata", p.getSite());
+		assertThat(window.label("errorMainLabel").text()).contains("Errore durante l'eliminazione della password", p.getSite());
 	}
 	
 	@Test

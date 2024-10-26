@@ -73,7 +73,7 @@ public class PasswordControllerTest {
 		Mockito.doThrow(new ConstraintViolationException("", null, "")).when(passwordRepository).save(password);
 
 		passwordController.savePassword(password);
-		verify(view).showError("password non valida o già presente per questa coppia sito-utente", null, "errorLabel_main");
+		verify(view).showError("Errore durante il salvataggio della password", null, "errorLabel_main");
 		verifyNoMoreInteractions(ignoreStubs(passwordRepository));
 	}
 	
@@ -97,7 +97,7 @@ public class PasswordControllerTest {
 
 		passwordController.deletePassword(password);
 		verify(passwordRepository).delete(password);
-		verify(view).showError("password non presente o già eliminata", password, "errorLabel_main");
+		verify(view).showError("Errore durante l'eliminazione della password", password, "errorLabel_main");
 		verifyNoMoreInteractions(ignoreStubs(passwordRepository));
 	}
 	

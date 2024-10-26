@@ -446,6 +446,16 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
+	public void testMainPaneWhenSiteAndUserAndPasswordAreNotEmptyAddButtonShouldBeEnabledWhenPasswordIsgenerated() {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		window.textBox("siteTextField").enterText("s");
+		window.textBox("userTextField").enterText("u");
+		window.button("generateButton").click();
+		window.button("addButton").requireEnabled();
+	}
+	
+	@Test
 	public void testMainPaneAddButtonWhenShouldDelegatePasswordControllerSavePasswordWhenNoPasswordIsSelected() {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		u1.setId(1);
@@ -506,6 +516,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordMainPasswordField").requireText("p");
 		assertEquals("saveIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
 		GuiActionRunner.execute(() -> window.label("errorMainLabel").target().setText("a"));
+		window.button("showPasswordToggle").click();
 		window.button("clearSelectionButton").click();
 		window.textBox("siteTextField").requireText("");
 		window.textBox("userTextField").requireText("");
@@ -515,6 +526,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("showPasswordToggle").requireDisabled();
 		window.button("clearSelectionButton").requireDisabled();
 		window.label("errorMainLabel").requireText("");
+		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
 		assertEquals("addIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
 	}
 
@@ -704,7 +716,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testPassworAddNewPasswordShouldAddThePasswordToTheListAndResetTheInputsAndErrorLabel()
+	public void testPasswordAddNewPasswordShouldAddThePasswordToTheListAndResetTheInputsAndErrorLabel()
 			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
@@ -720,10 +732,11 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("siteTextField").enterText("s2");
 		window.textBox("userTextField").enterText("u2");
 		window.textBox("passwordMainPasswordField").enterText("p2");
+		window.button("showPasswordToggle").click();
 		GuiActionRunner.execute(() -> passwordManagerView.passwordAddedOrUpdated(p2));
 
 		String[] listContents = window.list().contents();
-		assertThat(listContents).contains("s2 -user: u2");
+		assertThat(listContents[1]).contains("s2 -user: u2");
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
 		window.button("deleteButton").requireDisabled();
@@ -734,10 +747,11 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("generateButton").requireEnabled();
 		window.button("showPasswordToggle").requireDisabled();
 		window.label("errorMainLabel").requireText("");
+		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
 	}
 
 	@Test
-	public void testPassworAddExistingPasswordShouldUpdateThePasswordToTheListAndResetTheInputsAndErrorLabel()
+	public void testPasswordAddExistingPasswordShouldUpdateThePasswordToTheListAndResetTheInputsAndErrorLabel()
 			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
@@ -746,7 +760,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		Password p1 = new Password("s1", "u1", "p1", u1.getId(), u1.getPassword());
 		p1.setId(1);
 		Password p2 = new Password("s2", "u2", "p2", u1.getId(), u1.getPassword());
-		p1.setId(2);
+		p2.setId(2);
 		GuiActionRunner.execute(() -> {
 			DefaultListModel<Password> listPasswordModel = passwordManagerView.getListPasswordModel();
 			listPasswordModel.addElement(p1);
@@ -754,13 +768,17 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 			u1.setSitePasswords(Collections.list(listPasswordModel.elements()));
 		});
 		window.list("passwordList").selectItem(0);
+		window.textBox("siteTextField").setText("");
 		window.textBox("siteTextField").enterText("sNew");
-		window.textBox("userTextField").enterText("u2");
-		p1.setSite("sNEW");
+		p1.setSite("sNew");
+		window.textBox("userTextField").setText("");
+		window.textBox("userTextField").enterText("uNew");
+		p1.setUsername("uNew");
+		window.button("showPasswordToggle").click();
 		GuiActionRunner.execute(() -> passwordManagerView.passwordAddedOrUpdated(p1));
 
 		String[] listContents = window.list().contents();
-		assertThat(listContents).contains("sNEW -user: u1");
+		assertThat(listContents[0]).contains("sNew -user: uNew");
 		window.list().requireItemCount(2);
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
@@ -772,6 +790,38 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("generateButton").requireEnabled();
 		window.button("showPasswordToggle").requireDisabled();
 		window.label("errorMainLabel").requireText("");
+		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+	}
+	
+	@Test
+	public void testPasswordAddPasswordAndThenModifyitAndSaveShouldUpdateThePasswordToTheListAndResetTheInputsAndErrorLabel()
+			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
+			IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		u1.setId(1);
+		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
+		Password p1 = new Password("s1", "u1", "p1", u1.getId(), u1.getPassword());
+		p1.setId(1);
+		Password p2 = new Password("s2", "u2", "p2", u1.getId(), u1.getPassword());
+		p2.setId(2);
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Password> listPasswordModel = passwordManagerView.getListPasswordModel();
+			listPasswordModel.addElement(p1);
+			u1.setSitePasswords(Collections.list(listPasswordModel.elements()));
+		});
+		GuiActionRunner.execute(() -> passwordManagerView.passwordAddedOrUpdated(p2));
+		window.list("passwordList").selectItem(1);
+		window.textBox("siteTextField").setText("");
+		window.textBox("siteTextField").enterText("sNew");
+		p2.setSite("sNew");
+		window.textBox("userTextField").setText("");
+		window.textBox("userTextField").enterText("uNew");
+		p2.setUsername("uNew");
+		GuiActionRunner.execute(() -> passwordManagerView.passwordAddedOrUpdated(p2));
+
+		String[] listContents = window.list().contents();
+		assertThat(listContents[1]).contains("sNew -user: uNew");
+		window.list().requireItemCount(2);
 	}
 
 	@Test

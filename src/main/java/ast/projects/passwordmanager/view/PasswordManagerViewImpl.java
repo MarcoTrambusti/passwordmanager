@@ -85,7 +85,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 	private JButton btnC;
 	private JButton btnD;
 	private JList<Password> listPassword;
-
+	private ImageIcon iconShowPass;
+	private ImageIcon iconHidePass;
+	
 	private transient UserController userController;
 	private transient PasswordController passwordController;
 	private Map<String, JLabel> errorLabels = new HashMap<>();
@@ -259,9 +261,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		KeyAdapter btnAddEnabler = new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				btnAdd.setEnabled(
-						!textFieldSite.getText().trim().isEmpty() && !textFieldUser.getText().trim().isEmpty()
-								&& !String.valueOf(passwordFieldMain.getPassword()).trim().isEmpty());
+				enableAddBtn();
 			}
 		};
 
@@ -341,9 +341,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		btnS = new JButton("");
 		btnS.setEnabled(false);
 		btnS.setName("showPasswordToggle");
-		ImageIcon iconShowPass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_on.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+		iconShowPass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_on.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
 		iconShowPass.setDescription("showPasswordIcon");
-		ImageIcon iconHidePass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_off.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+		iconHidePass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_off.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
 		iconHidePass.setDescription("hidePasswordIcon");
 		btnS.setIcon(iconShowPass);
 		GridBagConstraints gbcBtnS = new GridBagConstraints();
@@ -351,16 +351,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		gbcBtnS.gridx = 2;
 		gbcBtnS.gridy = 9;
 		mainPane.add(btnS, gbcBtnS);
-		btnS.addActionListener(e -> {
-			showPasswordMain = !showPasswordMain;
-			if (showPasswordMain) {
-				passwordFieldMain.setEchoChar((char) 0);
-				btnS.setIcon(iconHidePass);
-			} else {
-				passwordFieldMain.setEchoChar('•');
-				btnS.setIcon(iconShowPass);
-			}
-		});
+		btnS.addActionListener(e -> toggleShowPassword(iconShowPass, iconHidePass));
 
 		JButton btnGenerate = new JButton("");
 		btnGenerate.setName("generateButton");
@@ -373,6 +364,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		gbcBtnGenerate.gridy = 9;
 		btnGenerate.addActionListener(e -> {
 			passwordFieldMain.setText(StringValidator.generatePassword());
+			enableAddBtn();
 			btnS.setEnabled(true);
 		});
 		mainPane.add(btnGenerate, gbcBtnGenerate);
@@ -572,6 +564,23 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		cardLayout.show(contentPane, LOGINREGISTER_PAGE);
 	}
 
+	private void toggleShowPassword(ImageIcon iconShowPass, ImageIcon iconHidePass) {
+		showPasswordMain = !showPasswordMain;
+		if (showPasswordMain) {
+			passwordFieldMain.setEchoChar((char) 0);
+			btnS.setIcon(iconHidePass);
+		} else {
+			passwordFieldMain.setEchoChar('•');
+			btnS.setIcon(iconShowPass);
+		}
+	}
+
+	private void enableAddBtn() {
+		btnAdd.setEnabled(
+				!textFieldSite.getText().trim().isEmpty() && !textFieldUser.getText().trim().isEmpty()
+						&& !String.valueOf(passwordFieldMain.getPassword()).trim().isEmpty());
+	}
+
 	private void addButtonClicked() {
 		try {
 			Password p;
@@ -644,19 +653,23 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		btnD.setEnabled(false);
 		btnS.setEnabled(false);
 		btnClearSelection.setEnabled(false);
+		if (showPasswordMain) {
+			toggleShowPassword(iconShowPass, iconHidePass);
+		}
 	}
 
 	@Override
 	public void passwordAddedOrUpdated(Password password) {
 		List<Password> passwordList = Collections.list(listPasswordModel.elements());
 		Integer id = password.getId();
-		if (passwordList.stream().anyMatch(data -> data.getId().equals(id))) {
-			listPasswordModel.clear();
-			currentUser.getSitePasswords().stream().forEach(listPasswordModel::addElement);
+		int index = passwordList.indexOf(passwordList.stream().filter(data -> data.getId().equals(id)).findFirst().orElse(null));
+		if (index != -1) {
+			listPasswordModel.set(index, password);
+			listPassword.clearSelection();
 		} else {
 			listPasswordModel.addElement(password);
+			clearMainPaneInputs();
 		}
-		clearMainPaneInputs();
 	}
 
 	@Override

@@ -138,7 +138,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("emailRegTextField").enterText("gmail.com");
 		window.textBox("passwordRegPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Register")).click();
-		assertEquals("Utente con username o mail già registrato", window.label("errorRegLabel").text());
+		assertEquals("Errore nella registrazione dell'utente. Riprovare con altri dati utente", window.label("errorRegLabel").text());
 	}
 
 	@Test
@@ -163,7 +163,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		deleteUserFromDatabase("mariorossitodel");
 		window.menuItemWithPath("Delete user").click();
 		assertThat(window.label("errorMainLabel").text())
-				.contains("Errore nell'eliminazione dell'utente: utente non trovato o già eliminato. Logout...");
+				.contains("Errore nell'eliminazione dell'utente. Logout...");
 
 		JPanel target = window.panel("mainPane").target();
 		pause(new Condition("OK button to be enabled") {
@@ -200,7 +200,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.button("addButton").click();
 		String[] listContents = window.list().contents();
 		assertThat(listContents).containsExactly("s1 -user: u1");
-		window.label("errorMainLabel").requireText("password non valida o già presente per questa coppia sito-utente");
+		window.label("errorMainLabel").requireText("Errore durante il salvataggio della password");
 	}
 	
 	@Test
@@ -241,7 +241,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.list("passwordList").selectItem(0);
 		deletePasswordFromDatabase("s1", "u1");
 		window.button("deleteButton").click();
-		assertThat(window.label("errorMainLabel").text()).contains("password non presente o già eliminata","s1");
+		assertThat(window.label("errorMainLabel").text()).contains("Errore durante l'eliminazione della password","s1");
 	}
 	
 	@Test
