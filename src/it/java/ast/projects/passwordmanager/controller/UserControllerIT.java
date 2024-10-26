@@ -2,6 +2,7 @@ package ast.projects.passwordmanager.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 
 import java.net.URI;
@@ -76,20 +77,18 @@ public class UserControllerIT {
 	@Test
 	public void testNewUser() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-
         userController.newUser(user);
-        User u = userRepository.findByUsername("mariorossi");
-        assertTrue(u.getUsername().equals(user.getUsername()) && u.getEmail().equals(user.getEmail()) && u.getPassword().equals(user.getPassword()));
-        verify(view).userLoggedOrRegistered(user);
+        User usr = userRepository.findByUsername("mariorossi");
+        assertTrue(usr.getUsername().equals(user.getUsername()) && usr.getEmail().equals(user.getEmail()) && usr.getPassword().equals(user.getPassword()));
+        verify(view).userLoggedOrRegistered(argThat(u -> u.getUsername().equals("mariorossi")
+				&& u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")));
 	}
 	
 	@Test
 	public void testDeleteUser() {
 		User userTodelete = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-        userController.newUser(userTodelete);
-
+		userRepository.save(userTodelete);
 		userController.deleteUser(userTodelete);
-		
 		assertEquals(null, userRepository.findByUsername("mariorossi"));
 		verify(view).userLogout();
 	}
@@ -97,19 +96,28 @@ public class UserControllerIT {
 	@Test
 	public void testLoginUserWithUsername() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		
-		userController.newUser(user);
-		userController.login(user.getUsername(), user.getPassword());
-		verify(view).userLoggedOrRegistered(user);
+		userRepository.save(user);
+		userController.login(user.getUsername(), "Password123@");
+		verify(view).userLoggedOrRegistered(argThat(u -> u.getUsername().equals("mariorossi")
+				&& u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")));
 	}
 	
 	@Test
 	public void testLoginUserWithEmail() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
-		
-		userController.newUser(user);
-		userController.login(user.getEmail(), user.getPassword());
-		verify(view).userLoggedOrRegistered(user);
+		userRepository.save(user);
+		userController.login(user.getEmail(), "Password123@");
+		verify(view).userLoggedOrRegistered(argThat(u -> u.getUsername().equals("mariorossi")
+				&& u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")));
+	}
+	
+	@Test
+	public void testReloadUser() {
+		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		userRepository.save(user);
+		userController.reloadUser(1);
+		verify(view).userLoggedOrRegistered(argThat(u -> u.getUsername().equals("mariorossi")
+				&& u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")));
 	}
 	
 	private void clearTable() {

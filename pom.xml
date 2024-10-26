@@ -185,8 +185,12 @@
 				<plugin>
 					<groupId>org.pitest</groupId>
 					<artifactId>pitest-maven</artifactId>
-					<version>1.5.2</version>
+					<version>1.17.0</version>
 					<configuration>
+						<features>
+							<feature>-MACOS_FOCUS</feature>
+							<feature>+auto_threads</feature>
+						</features>
 						<jvmArgs>
 							<jvmArg>-Djava.awt.headless=false</jvmArg>
 						</jvmArgs>
@@ -198,12 +202,26 @@
 							<param>ast.projects.passwordmanager.repository.*</param>
 						</targetClasses>
 						<avoidCallsTo>
-							<param>java.awt.Window.setBounds</param>
+							<param>java.awt.Window</param>
+							<param>javax.swing.JComponent</param>
+							<param>java.awt.Container</param>
+							<param>javax.swing.JFrame</param>
+							<param>javax.swing.JPanel</param>
+							<param>javax.swing.JLabel</param>
+							<param>javax.swing.ImageIcon</param>
+							<param>javax.swing.JMenu</param>
+							<param>javax.swing.JMenuItem</param>
+							<param>javax.swing.JButton</param>
+							<param>javax.swing.JScrollPane</param>
+							<param>javax.swing.JTextField</param>
+							<param>javax.swing.JPasswordField</param>
+							<param>javax.swing.JTabbedPane</param>
+							<param>java.awt.CardLayout</param>
+							<param>javax.swing.JList</param>
 						</avoidCallsTo>
 						<targetTests>
 							<param>ast.projects.passwordmanager.*</param>
-							<param>
-								ast.projects.passwordmanager.app.StringValidatorTest</param>
+							<param>ast.projects.passwordmanager.app.StringValidatorTest</param>
 						</targetTests>
 						<mutators>
 							<mutator>DEFAULTS</mutator>

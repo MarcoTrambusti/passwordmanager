@@ -100,10 +100,10 @@ public class PasswordControllerIT {
 	@Test
 	public void testDeletePassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password p1 = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
-		passwordController.savePassword(p1);
+		passwordRepository.save(p1);
 		passwordController.deletePassword(p1);
 		assertNull(passwordRepository.findById(p1.getId()));
-		verify(view).passwordDeleted(p1);
+		verify(view).passwordAddedOrUpdated(p1);
 	}
 	
 	private void clearDb() {

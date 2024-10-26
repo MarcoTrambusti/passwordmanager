@@ -169,4 +169,23 @@ public class UserControllerTest {
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
 	}
 	
+	@Test 
+	public void testReloadUserFound() {
+		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		user.setId(1);
+		when(userRepository.findById(1)).thenReturn(user);
+		userController.reloadUser(1);
+		verify(userRepository).findById(1);
+		verify(view).userLoggedOrRegistered(user);
+	}
+	
+	@Test 
+	public void testReloadUserNotFound() {
+		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+		user.setId(1);
+		when(userRepository.findById(1)).thenReturn(null);
+		userController.reloadUser(1);
+		verify(userRepository).findById(1);
+		verify(view).showError("Errore durante il recupero dell'utente", null, "errorLabel_main");
+	}
 }

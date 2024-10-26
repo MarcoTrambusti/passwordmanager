@@ -62,5 +62,16 @@ public class UserController {
 
 		pwdmngrView.showError("username/email o password errati!", null, "errorLabel_login");
 	}
+	
+	public void reloadUser(int id) {
+		User u =  userRepository.findById(id);
+		
+		if(u != null) {
+			pwdmngrView.userLoggedOrRegistered(u);
+			return;
+		}
+		
+		pwdmngrView.showError("Errore durante il recupero dell'utente", null, "errorLabel_main");
+	}
 
 }

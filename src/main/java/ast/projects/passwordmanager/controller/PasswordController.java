@@ -25,7 +25,7 @@ public class PasswordController {
 	public void deletePassword(Password password) {
 		try {
 			passwordRepository.delete(password);
-			pwdmngrView.passwordDeleted(password);
+			pwdmngrView.passwordAddedOrUpdated(password);
 		} catch (Exception e) {
 			pwdmngrView.showError("Errore durante l'eliminazione della password", password, "errorLabel_main");
 		}

@@ -18,9 +18,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.crypto.BadPaddingException;
@@ -112,15 +110,16 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 	 */
 	public PasswordManagerViewImpl() {
 
-		setTitle("PasswordManager");
-		setBounds(100, 100, 497, 436);
+		super.setTitle("PasswordManager");
+		super.setBounds(100, 100, 497, 436);
+		
 		contentPane = new JPanel();
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		super.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		setContentPane(contentPane);
+		super.setContentPane(contentPane);
 		cardLayout = new CardLayout(0, 0);
 		contentPane.setLayout(cardLayout);
 
@@ -215,8 +214,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		mainPane.add(btnClearSelection, gbcBtnClearSelection);
 
 		listPassword.addListSelectionListener(e -> {
-			if (listPassword.getSelectedIndex() != -1) {
-				selectedPassword = listPasswordModel.get(listPassword.getSelectedIndex());
+			int selectedIndex = listPassword.getSelectedIndex();
+			if (selectedIndex != -1) {
+				selectedPassword = listPasswordModel.get(selectedIndex);
 				textFieldSite.setText(selectedPassword.getSite());
 				textFieldUser.setText(selectedPassword.getUsername());
 				passwordFieldMain.setText(decryptPassword(selectedPassword));
@@ -384,8 +384,8 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		contentPane.add(loginregisterPane, LOGINREGISTER_PAGE);
 
 		JPanel loginPane = new JPanel();
-		loginPane.setName("loginTab");
 		loginregisterPane.addTab("Login", null, loginPane, null);
+		loginPane.setName("loginTab");
 		GridBagLayout gblLoginPane = new GridBagLayout();
 		gblLoginPane.columnWidths = new int[] { 0, 0 };
 		gblLoginPane.rowHeights = new int[] { 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -462,8 +462,8 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		errorLabels.put("errorLabel_login", labelErrorMessageLogin);
 
 		JPanel registerPane = new JPanel();
-		registerPane.setName("registerTab");
 		loginregisterPane.addTab("Register", null, registerPane, null);
+		registerPane.setName("registerTab");
 		GridBagLayout gblRegisterPane = new GridBagLayout();
 		gblRegisterPane.columnWidths = new int[] { 0, 0 };
 		gblRegisterPane.rowHeights = new int[] { 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -627,7 +627,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		currentUser = user;
 		mnUser.setText(user.getUsername());
 		cardLayout.show(contentPane, "main_page");
-
+		listPasswordModel.clear();
 		currentUser.getSitePasswords().stream().forEach(listPasswordModel::addElement);
 
 		clearLoginRegisterPaneInputs();
@@ -660,21 +660,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 
 	@Override
 	public void passwordAddedOrUpdated(Password password) {
-		List<Password> passwordList = Collections.list(listPasswordModel.elements());
-		Integer id = password.getId();
-		int index = passwordList.indexOf(passwordList.stream().filter(data -> data.getId().equals(id)).findFirst().orElse(null));
-		if (index != -1) {
-			listPasswordModel.set(index, password);
-			listPassword.clearSelection();
-		} else {
-			listPasswordModel.addElement(password);
-			clearMainPaneInputs();
-		}
-	}
-
-	@Override
-	public void passwordDeleted(Password password) {
-		listPasswordModel.removeElement(password);
+		int userId = currentUser.getId();
+		clearMainPaneInputs();
+		userController.reloadUser(userId);
 	}
 
 	public String decryptPassword(Password password) {

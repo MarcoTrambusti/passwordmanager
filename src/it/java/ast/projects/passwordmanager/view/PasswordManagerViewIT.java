@@ -164,7 +164,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("emailRegTextField").enterText("gmail.com");
 		window.textBox("passwordRegPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Register")).click();
-		window.label("errorRegLabel").requireText("Utente con username o mail già registrato");
+		window.label("errorRegLabel").requireText("Errore nella registrazione dell'utente. Riprovare con altri dati utente");
 	}
 	
 	@Test

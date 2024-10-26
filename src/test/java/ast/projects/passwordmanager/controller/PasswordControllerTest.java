@@ -85,7 +85,7 @@ public class PasswordControllerTest {
 		passwordController.deletePassword(password);
 		InOrder inOrder = inOrder(passwordRepository, view);
 		inOrder.verify(passwordRepository).delete(password);
-		inOrder.verify(view).passwordDeleted(password);
+		inOrder.verify(view).passwordAddedOrUpdated(password);
 	}
 	
 	@Test

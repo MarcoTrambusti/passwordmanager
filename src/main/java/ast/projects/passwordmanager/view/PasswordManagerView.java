@@ -9,5 +9,4 @@ public interface PasswordManagerView {
 	void userLoggedOrRegistered(User user);
 	void userLogout();
 	void passwordAddedOrUpdated(Password password);
-	void passwordDeleted(Password password);
 }
