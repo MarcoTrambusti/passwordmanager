@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
-import static org.junit.Assert.assertEquals;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -12,6 +11,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -52,6 +52,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.utility.DockerImageName;
+import java.io.FileOutputStream;
 
 @RunWith(GUITestRunner.class)
 public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
@@ -73,9 +74,21 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		jdbcUrl = mariaDB.getJdbcUrl();
 		jdbcUrl = jdbcUrl.replace("test", "password_manager");
 		URI uri = URI.create(jdbcUrl.replace("jdbc:", ""));
-		System.getProperties().setProperty("app.db_port", Integer.toString(uri.getPort()));
-		System.getProperties().setProperty("app.db_host", uri.getHost());
-
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		InputStream input = loader.getResourceAsStream("app.properties");
+		Properties prop = new Properties();
+		
+		prop.load(input);
+		prop.setProperty("app.db_port", Integer.toString(uri.getPort()));
+		prop.setProperty("app.db_host", uri.getHost());
+		
+		// Salva le proprietà nel file
+		try (OutputStream output = new FileOutputStream(loader.getResource("app.properties").getFile())) {
+		    prop.store(output, null); 
+		} catch (IOException e) {
+		    System.err.println("Errore durante il salvataggio delle proprietà: " + e.getMessage());
+		}
+        
 		application("ast.projects.passwordmanager.app.PasswordManagerSwingApp").start();
 
 		window = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
@@ -103,7 +116,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Login")).click();
 		window.panel("mainPane").requireVisible();
 		String[] listContents = window.list().contents();
-		assertEquals(1,listContents.length);
+		assertThat(listContents).hasSize(1);
 	}
 
 	@Test
@@ -112,7 +125,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("usrmailTextField").enterText("mariorossitest");
 		window.textBox("passwordPasswordField").enterText("Password123@");
 		window.button(JButtonMatcher.withText("Login")).click();
-		assertEquals("username/email o password errati!", window.label("errorLoginLabel").text());
+		assertThat(window.label("errorLoginLabel").text()).isEqualTo("username/email o password errati!");
 	}
 
 	@Test
@@ -126,7 +139,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Register")).click();
 		window.panel("mainPane").requireVisible();
 		String[] listContents = window.list().contents();
-		assertEquals(0,listContents.length);
+		assertThat(listContents).isEmpty();
 	}
 
 	@Test
@@ -138,7 +151,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("emailRegTextField").enterText("gmail.com");
 		window.textBox("passwordRegPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Register")).click();
-		assertEquals("Errore nella registrazione dell'utente. Riprovare con altri dati utente", window.label("errorRegLabel").text());
+		assertThat(window.label("errorRegLabel").text()).isEqualTo("Errore nella registrazione dell'utente. Riprovare con altri dati utente");
 	}
 
 	@Test
@@ -151,7 +164,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("usrmailTextField").enterText("mariorossitodel");
 		window.textBox("passwordPasswordField").enterText("Password123@");
 		window.button(JButtonMatcher.withText("Login")).click();
-		assertEquals("username/email o password errati!", window.label("errorLoginLabel").text());
+		assertThat(window.label("errorLoginLabel").text()).isEqualTo("username/email o password errati!");
 	}
 
 	@Test
@@ -218,7 +231,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.list("passwordList").selectItem(0);
 		window.button("copyButton").click();
 		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-		assertEquals("p2", copiedString);
+		assertThat(copiedString).isEqualTo("p2");
 	}
 	
 	@Test
@@ -250,7 +263,7 @@ public class PasswordManagerAppE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Login")).click();
 		String[] listContents = window.list().contents();
-		assertEquals(1, listContents.length);
+		assertThat(listContents).hasSize(1);
 		window.menuItemWithPath("Logout").click();
 		window.textBox("usrmailTextField").enterText("mariorossitodel");
 		window.textBox("passwordPasswordField").enterText("Password123!");

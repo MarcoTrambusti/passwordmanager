@@ -1,11 +1,7 @@
 package ast.projects.passwordmanager.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
@@ -73,7 +69,7 @@ public class UserRepositoyImplTest {
 		List<User> users = userRepository.findAll();
 		assertThat(users).isEmpty();
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
+		assertThat(session.isOpen()).isFalse();
 	}
 
 	@Test
@@ -85,11 +81,11 @@ public class UserRepositoyImplTest {
 		userList.add(u2);
 		List<User> users = userRepository.findAll();
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
-		assertTrue(users.get(0).getUsername().equals(u1.getUsername()) && users.get(0).getEmail().equals(u1.getEmail())
-				&& users.get(0).getPassword().equals(u1.getPassword()));
-		assertTrue(users.get(1).getUsername().equals(u2.getUsername()) && users.get(1).getEmail().equals(u2.getEmail())
-				&& users.get(1).getPassword().equals(u2.getPassword()));
+		assertThat(session.isOpen()).isFalse();
+		assertThat(users.get(0).getUsername().equals(u1.getUsername()) && users.get(0).getEmail().equals(u1.getEmail())
+				&& users.get(0).getPassword().equals(u1.getPassword())).isTrue();
+		assertThat(users.get(1).getUsername().equals(u2.getUsername()) && users.get(1).getEmail().equals(u2.getEmail())
+				&& users.get(1).getPassword().equals(u2.getPassword())).isTrue();
 	}
 
 	@Test
@@ -97,8 +93,8 @@ public class UserRepositoyImplTest {
 		User u = userRepository.findById(1);
 		assertThat(u).isNull();
 		session = userRepository.getCurrentSession();
-		assertNotNull(session);
-		assertFalse(session.isOpen());
+		assertThat(session).isNotNull();
+		assertThat(session.isOpen()).isFalse();
 	}
 
 	@Test
@@ -106,10 +102,10 @@ public class UserRepositoyImplTest {
 		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		User u = userRepository.findById(u2.getId());
 		session = userRepository.getCurrentSession();
-		assertNotNull(session);
-		assertFalse(session.isOpen());
-		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
-				&& u.getPassword().equals(u2.getPassword()));
+		assertThat(session).isNotNull();
+		assertThat(session.isOpen()).isFalse();
+		assertThat(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword())).isTrue();
 	}
 
 	@Test
@@ -117,7 +113,7 @@ public class UserRepositoyImplTest {
 		User u = userRepository.findByUsername("mariorossi");
 		assertThat(u).isNull();
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
+		assertThat(session.isOpen()).isFalse();
 	}
 
 	@Test
@@ -125,9 +121,9 @@ public class UserRepositoyImplTest {
 		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		User u = userRepository.findByUsername("mariorossi");
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
-		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
-				&& u.getPassword().equals(u2.getPassword()));
+		assertThat(session.isOpen()).isFalse();
+		assertThat(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword())).isTrue();
 	}
 
 	@Test
@@ -135,7 +131,7 @@ public class UserRepositoyImplTest {
 		User u = userRepository.findByEmail("mariorossi@gmail.com");
 		assertThat(u).isNull();
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
+		assertThat(session.isOpen()).isFalse();
 	}
 
 	@Test
@@ -143,9 +139,9 @@ public class UserRepositoyImplTest {
 		User u2 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		User u = userRepository.findByEmail("mariorossi@gmail.com");
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
-		assertTrue(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
-				&& u.getPassword().equals(u2.getPassword()));
+		assertThat(session.isOpen()).isFalse();
+		assertThat(u.getUsername().equals(u2.getUsername()) && u.getEmail().equals(u2.getEmail())
+				&& u.getPassword().equals(u2.getPassword())).isTrue();
 	}
 
 	@Test
@@ -153,23 +149,23 @@ public class UserRepositoyImplTest {
 		User u1 = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		userRepository.save(u1);
 		session = userRepository.getCurrentSession();
-		assertNotNull(session);
-		assertEquals(TransactionStatus.COMMITTED, session.getTransaction().getStatus());
-		assertFalse(session.isOpen());
-		assertEquals(1, readAllUsersFromDatabase().size());
+		assertThat(session).isNotNull();
+		assertThat(session.getTransaction().getStatus()).isEqualTo(TransactionStatus.COMMITTED);
+		assertThat(session.isOpen()).isFalse();
+		assertThat(readAllUsersFromDatabase()).hasSize(1);
 		User u = readAllUsersFromDatabase().get(0);
-		assertTrue(u.getUsername().equals(u1.getUsername()) && u.getEmail().equals(u1.getEmail())
-				&& u.getPassword().equals(u1.getPassword()));
+		assertThat(u.getUsername().equals(u1.getUsername()) && u.getEmail().equals(u1.getEmail())
+				&& u.getPassword().equals(u1.getPassword())).isTrue();
 	}
 
 	@Test
 	public void testSaveUserWhenUserIsAlreadyInDB() {
 		User u1 = addTestUserToDatabase("mariorossi2", "mariorossi@gmail.com", "Password123@");
-		assertThrows(ConstraintViolationException.class, () -> userRepository.save(u1));
+		assertThatThrownBy(() -> userRepository.save(u1)).isInstanceOf(ConstraintViolationException.class);
 		session = userRepository.getCurrentSession();
-		assertFalse(session.isOpen());
-		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
-		assertEquals(1, readAllUsersFromDatabase().size());
+		assertThat(session.isOpen()).isFalse();
+		assertThat(session.getTransaction().getStatus()).isEqualTo(TransactionStatus.ROLLED_BACK);
+		assertThat(readAllUsersFromDatabase()).hasSize(1);
 	}
 
 	@Test
@@ -177,36 +173,36 @@ public class UserRepositoyImplTest {
 		User u1 = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
 		userRepository.delete(u1);
 		session = userRepository.getCurrentSession();
-		assertEquals(TransactionStatus.COMMITTED, session.getTransaction().getStatus());
-		assertFalse(session.isOpen());
-		assertTrue(readAllUsersFromDatabase().isEmpty());
+		assertThat(session.getTransaction().getStatus()).isEqualTo(TransactionStatus.COMMITTED);
+		assertThat(session.isOpen()).isFalse();
+		assertThat(readAllUsersFromDatabase()).isEmpty();
 	}
 
 	@Test
 	public void testDeleteUserThatIsNotInDB() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		user.setId(1);
-		assertThrows(OptimisticLockException.class, () -> userRepository.delete(user));
+		assertThatThrownBy(() -> userRepository.delete(user)).isInstanceOf(OptimisticLockException.class);
 		session = userRepository.getCurrentSession();
-		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
-		assertFalse(session.isOpen());
+		assertThat(session.getTransaction().getStatus()).isEqualTo(TransactionStatus.ROLLED_BACK);
+		assertThat(session.isOpen()).isFalse();
 	}
-	
+
 	@Test
-    public void testDeleteRollback() {
+	public void testDeleteRollback() {
 		SessionFactory spiedFactory = spy(factory);
 		Session spiedSession = spy(spiedFactory.openSession());
 		Transaction spiedTransaction = spy(spiedSession.getTransaction());
 		UserRepositoryImpl spiedPassswordRepo = spy(userRepository);
 		User user = addTestUserToDatabase("mariorossi", "mariorossi@gmail.com", "Password123@");
-	    doReturn(spiedFactory).when(spiedPassswordRepo).getSessionFactory();
-	    doReturn(spiedSession).when(spiedFactory).openSession();
-	    doReturn(spiedTransaction).when(spiedSession).getTransaction();
+		doReturn(spiedFactory).when(spiedPassswordRepo).getSessionFactory();
+		doReturn(spiedSession).when(spiedFactory).openSession();
+		doReturn(spiedTransaction).when(spiedSession).getTransaction();
 		doThrow(new RuntimeException("Simulated exception")).when(spiedTransaction).commit();
-		assertThrows(RuntimeException.class, () -> spiedPassswordRepo.delete(user));
+		assertThatThrownBy(() -> spiedPassswordRepo.delete(user)).isInstanceOf(RuntimeException.class);
 		session = spiedPassswordRepo.getCurrentSession();
-		assertEquals(TransactionStatus.ROLLED_BACK, session.getTransaction().getStatus());
-		assertFalse(session.isOpen());
+		assertThat(session.getTransaction().getStatus()).isEqualTo(TransactionStatus.ROLLED_BACK);
+		assertThat(session.isOpen()).isFalse();
 	}
 
 	private void clearTable() {

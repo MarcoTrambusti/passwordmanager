@@ -1,5 +1,0 @@
-# Ignore everything...
- **
-
-# ...but the JAR file
-!/target/*.jar

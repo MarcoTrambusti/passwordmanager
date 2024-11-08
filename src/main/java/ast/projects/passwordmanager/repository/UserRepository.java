@@ -9,6 +9,6 @@ public interface UserRepository {
 	User findById(int id);
 	User findByUsername(String username);
 	User findByEmail(String email);
-    List<User> findAll();
-    void delete(User user);
+	List<User> findAll();
+	void delete(User user);
 }

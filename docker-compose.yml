@@ -1,41 +1,25 @@
-version: '2'
-
 services:
-   app:
-    image: java-app-password
-    container_name: app
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      - app-network
-    volumes:
-      - ./mariadb-init.sql:/mariadb-init.sql
-   mariadb:
+  mariadb:
+    container_name: mariadb
     image: mariadb:latest
-    container_name: db
+    restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: mypass
-      #MARIADB_DATABASE: password_manager
-      #MARIADB_USER: root
-      #MARIADB_PASSWORD: rootpass
-      JAVA_OPTS: -Djava.awt.headless=true
-      
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - app-network
-  #  volumes:
-   #  - ./mariadb-init.sql:/docker-entrypoint-initdb.d/mariadb-init.sql
-     # - mariadb_data:/var/lib/mysql  # Persistent data volume
-      
-networks:
-  app-network:
-     driver: bridge
-     
+      MARIADB_ROOT_PASSWORD: rootpassword
+    volumes:
+      - database-data:/var/lib/mysql
+      - ./sql:/sql
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+  adminer:
+    container_name: passwordmanager-adm
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
 volumes:
-   mariadb_data:
+  database-data:
+
+ 

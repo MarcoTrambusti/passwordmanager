@@ -31,7 +31,7 @@ public class UserControllerTest {
 	
 	@Mock
 	private PasswordManagerView view;
-  
+
 	@InjectMocks
 	private UserController userController;
 	
@@ -52,7 +52,7 @@ public class UserControllerTest {
 	public void testNewUserWhenUserDoesNotAlreadyExist() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 
-        userController.newUser(user);
+		userController.newUser(user);
 		InOrder inOrder = inOrder(userRepository, view);
 		inOrder.verify(userRepository).save(user);
 		inOrder.verify(view).userLoggedOrRegistered(user);
@@ -64,7 +64,7 @@ public class UserControllerTest {
 		Mockito.doThrow(new ConstraintViolationException("Username already exists", null, "")).when(userRepository).save(user);
 
 		userController.newUser(user);
-	    verify(view).showError("Errore nella registrazione dell'utente. Riprovare con altri dati utente", null, "errorLabel_register");
+		verify(view).showError("Errore nella registrazione dell'utente. Riprovare con altri dati utente", null, "errorLabel_register");
 		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
@@ -83,9 +83,9 @@ public class UserControllerTest {
 	public void testDeleteUserWhenUserNotExist() {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		Mockito.doThrow(new OptimisticLockException("User not  exists", null, "")).when(userRepository).delete(user);
-	    
+		
 		userController.deleteUser(user);
-	    verify(view).showError("Errore nell'eliminazione dell'utente. Logout...", user, "errorLabel_main");
+		verify(view).showError("Errore nell'eliminazione dell'utente. Logout...", user, "errorLabel_main");
 		verify(view, timeout(4000)).userLogout();
 		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
@@ -107,6 +107,7 @@ public class UserControllerTest {
 		userController.login("mariorossis", "Password123@");
 		verify(userRepository).findByUsername("mariorossis");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -115,9 +116,9 @@ public class UserControllerTest {
 		when(userRepository.findByUsername("mariorossi")).thenReturn(user);
 		
 		userController.login("mariorossi", "wrongpassword");
-		
 		verify(userRepository).findByUsername("mariorossi");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -125,9 +126,9 @@ public class UserControllerTest {
 		when(userRepository.findByUsername("mariorossis")).thenReturn(null);
 		
 		userController.login("mariorossis", "wrongpassword");
-		
 		verify(userRepository).findByUsername("mariorossis");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -145,9 +146,9 @@ public class UserControllerTest {
 		when(userRepository.findByEmail("wrong@gmail.com")).thenReturn(null);
 		
 		userController.login("wrong@gmail.com", "Password123@");
-		
 		verify(userRepository).findByEmail("wrong@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -158,6 +159,7 @@ public class UserControllerTest {
 		userController.login("mariorossi@gmail.com", "wrongpassword");
 		verify(userRepository).findByEmail("mariorossi@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -167,6 +169,7 @@ public class UserControllerTest {
 		userController.login("wrong@gmail.com", "wrongpassword");
 		verify(userRepository).findByEmail("wrong@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test 
@@ -187,5 +190,6 @@ public class UserControllerTest {
 		userController.reloadUser(1);
 		verify(userRepository).findById(1);
 		verify(view).showError("Errore durante il recupero dell'utente", null, "errorLabel_main");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 }

@@ -38,7 +38,7 @@ public class User {
 	@Column(name = "password_hash", nullable = false)
 	private String password;
 
-	@OneToMany(mappedBy = "userId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "userId", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Password> sitePasswords = new ArrayList<>();
 
 	@Transient

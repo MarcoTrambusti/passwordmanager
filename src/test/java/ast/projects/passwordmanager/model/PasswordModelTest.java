@@ -1,8 +1,7 @@
 package ast.projects.passwordmanager.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -38,32 +37,32 @@ public class PasswordModelTest {
 		user.setId(1);
 		String sitePassword = "password123!";
 		Password password = new Password("google.com", "mario", sitePassword, user.getId(), user.getPassword());
-		assertEquals("mario", password.getUsername());
-		assertEquals("google.com", password.getSite());
-		assertEquals(user.getId(), password.getUserId());
-        assertNotEquals(sitePassword, password.getPassword());
-		assertEquals(sitePassword, decrypt(password, user.getPassword()));
+		assertThat(password.getUsername()).isEqualTo("mario");
+		assertThat(password.getSite()).isEqualTo("google.com");
+		assertThat(password.getUserId()).isEqualTo(user.getId());
+		assertThat(password.getPassword()).isNotEqualTo(sitePassword);
+		assertThat(decrypt(password, user.getPassword())).isEqualTo(sitePassword);
 	}
 	
 	@Test
 	public void testNewPasswordWithInvalidUsername() {		
 		Integer userId = user.getId();
 		String userPassword = user.getPassword();
-		assertThrows(InvalidParameterException.class, () -> new Password("google.com", "   ", "password123!", userId, userPassword));
+		assertThatThrownBy(() -> new Password("google.com", " ", "password123!", userId, userPassword)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testNewPasswordWithInvalidSite() {
 		Integer userId = user.getId();
 		String userPassword = user.getPassword();
-		assertThrows(InvalidParameterException.class, () -> new Password("  ", "mario", "password123!", userId, userPassword));
+		assertThatThrownBy(() -> new Password("  ", "mario", "password123!", userId, userPassword)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testNewPasswordWithInvalidPassword() {
 		Integer userId = user.getId();
 		String userPassword = user.getPassword();
-		assertThrows(InvalidParameterException.class, () -> new Password("google.com", "mario", "   ", userId, userPassword));
+		assertThatThrownBy(() -> new Password("google.com", "mario", "   ", userId, userPassword)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
@@ -71,39 +70,39 @@ public class PasswordModelTest {
 		User user2 = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		Integer userId = user2.getId();
 		String userPassword = user2.getPassword();
-		assertThrows(InvalidParameterException.class, () -> new Password("google.com", "mario", "password123!", userId, userPassword));
+		assertThatThrownBy(() -> new Password("google.com", "mario", "password123!", userId, userPassword)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testNewPasswordWithInvalidUserPassword() {
 		Integer userId = user.getId();
-		assertThrows(InvalidParameterException.class, () -> new Password("google.com", "mario", "password123!", userId, null));
+		assertThatThrownBy(() -> new Password("google.com", "mario", "password123!", userId, null)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testPasswordSetInvalidSite() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
-		assertThrows(InvalidParameterException.class, ()-> password.setSite("  "));
+		assertThatThrownBy(() -> password.setSite("  ")).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testPasswordSetSite() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
 		password.setSite("newSite");
-		assertEquals("newSite", password.getSite());
+		assertThat(password.getSite()).isEqualTo("newSite");
 	}
 	
 	@Test
 	public void testPasswordSetInvalidUsername() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
-		assertThrows(InvalidParameterException.class, ()-> password.setUsername("  "));
+		assertThatThrownBy(() -> password.setUsername("  ")).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testPasswordSetUsername() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
 		password.setUsername("newUsername");
-		assertEquals("newUsername", password.getUsername());
+		assertThat(password.getUsername()).isEqualTo("newUsername");
 	}
 	
 	@Test
@@ -111,7 +110,7 @@ public class PasswordModelTest {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
 		User user2 = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		Integer userId = user2.getId();
-		assertThrows(InvalidParameterException.class, ()-> password.setUserId(userId));
+		assertThatThrownBy(() -> password.setUserId(userId)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
@@ -120,28 +119,28 @@ public class PasswordModelTest {
 		User user2 = new User("mariorossi", "mariorossi@gmail.com", "Password123!");
 		user2.setId(2);
 		password.setUserId(user2.getId());
-		assertEquals(user2.getId(), password.getUserId());
+		assertThat(password.getUserId()).isEqualTo(user2.getId());
 	}
 	
 	@Test
 	public void testPasswordSetInvalidPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
 		String userPassword = user.getPassword();
-		assertThrows(InvalidParameterException.class, ()-> password.setPassword("  ", userPassword));
+		assertThatThrownBy(() -> password.setPassword("  ", userPassword)).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testPasswordSetInvalidUserHashedPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123!", user.getId(), user.getPassword());
-		assertThrows(InvalidParameterException.class, ()-> password.setPassword("password", "  "));
+		assertThatThrownBy(() -> password.setPassword("password", "  ")).isInstanceOf(InvalidParameterException.class);
 	}
 	
 	@Test
 	public void testPasswordSetPassword() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("google.com", "mario", "password123", user.getId(), user.getPassword());
 		password.setPassword("newPassword", user.getPassword());
-		assertNotEquals("newPassword", password.getPassword());
-		assertEquals("newPassword", decrypt(password, user.getPassword()));
+		assertThat(password.getPassword()).isNotEqualTo("newPassword");
+		assertThat(decrypt(password, user.getPassword())).isEqualTo("newPassword");
 	}
 	
 	

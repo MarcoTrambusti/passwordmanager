@@ -25,6 +25,9 @@ import ast.projects.passwordmanager.view.PasswordManagerViewImpl;
 
 public class PasswordManagerSwingApp {
 	private static final String APP_DB_HOST = "app.db_host";
+	private static final String APP_DB_PORT = "app.db_port";
+	private static final String APP_MARIADB_USERNAME = "app.mariadb_username";
+	private static final String APP_MARIADB_PASSWORD = "app.mariadb_password";
 	/**
 	 * Launch the application.
 	 */
@@ -38,19 +41,17 @@ public class PasswordManagerSwingApp {
 
 				// load a properties from app.properties file and initialize db
 				prop.load(input);
-				prop.putAll(System.getProperties());
 				
 				String dbHost = prop.getProperty(APP_DB_HOST) != null ? prop.getProperty(APP_DB_HOST) : "localhost";
-				String dbPort = prop.getProperty("app.db_port") != null ? prop.getProperty("app.db_port") : "3306";
+				String dbPort = prop.getProperty(APP_DB_PORT) != null ? prop.getProperty(APP_DB_PORT) : "3306";
 
 				String url = "jdbc:mariadb://" + dbHost + ":" + dbPort + "/";
 
-				String username = prop.getProperty("app.mariadb_username");
-				String password = prop.getProperty("app.mariadb_password");
+				String username = prop.getProperty(APP_MARIADB_USERNAME);
+				String password = prop.getProperty(APP_MARIADB_PASSWORD);
 				String sqlFilePath = "./mariadb-init.sql";
-
+				
 				initDB(url, username, password, sqlFilePath);
-				LogManager.getLogger().info("URL: ".concat(url));
 
 				SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", url+"password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 
@@ -64,7 +65,7 @@ public class PasswordManagerSwingApp {
 				view.setPasswordController(pswController);
 				view.setVisible(true);
 
-				LogManager.getLogger().info("Hello World!");
+				LogManager.getLogger().info("App Started Successfully");
 
 				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 					if (factory != null) {

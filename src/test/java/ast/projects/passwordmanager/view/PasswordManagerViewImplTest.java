@@ -1,10 +1,6 @@
 package ast.projects.passwordmanager.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -106,13 +102,13 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.tabbedPane("loginregisterTabbedPane").requireVisible();
 		window.tabbedPane().target().getName().equals("loginTab");
 		window.label(JLabelMatcher.withText("username/email"));
-		assertEquals(10,((JTextField)window.textBox("usrmailTextField").target()).getColumns());
+		assertThat(((JTextField)window.textBox("usrmailTextField").target()).getColumns()).isEqualTo(10);
 		window.textBox("usrmailTextField").requireEnabled();
 		window.label("passwordloginLabel");
 		window.textBox("passwordPasswordField").requireEnabled();
 		window.button(JButtonMatcher.withText("Login")).requireDisabled();
 		window.label("errorLoginLabel").requireText("");
-		assertEquals(WindowConstants.EXIT_ON_CLOSE, ((JFrame) window.target()).getDefaultCloseOperation());
+		assertThat(((JFrame) window.target()).getDefaultCloseOperation()).isEqualTo(WindowConstants.EXIT_ON_CLOSE);
 	}
 
 	@Test
@@ -147,10 +143,10 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.tabbedPane("loginregisterTabbedPane").selectTab("Register");
 		window.label(JLabelMatcher.withText("username"));
 		window.textBox("usernameRegTextField").requireEnabled();
-		assertEquals(10,((JTextField)window.textBox("usernameRegTextField").target()).getColumns());
+		assertThat(((JTextField)window.textBox("usernameRegTextField").target()).getColumns()).isEqualTo(10);
 		window.label(JLabelMatcher.withText("email"));
 		window.textBox("emailRegTextField").requireEnabled();
-		assertEquals(10,((JTextField)window.textBox("emailRegTextField").target()).getColumns());
+		assertThat(((JTextField)window.textBox("emailRegTextField").target()).getColumns()).isEqualTo(10);
 		window.label("passwordRegLabel");
 		window.textBox("passwordRegPasswordField").requireEnabled();
 		window.button(JButtonMatcher.withText("Register")).requireDisabled();
@@ -243,28 +239,28 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		loginErrorLabel.requireText("");
 		window.panel("mainPane").requireVisible();
 		window.menuItemWithPath(u1.getUsername()).requireVisible();
-		assertEquals("userIcon",((ImageIcon)window.menuItemWithPath(u1.getUsername()).target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.menuItemWithPath(u1.getUsername()).target().getIcon()).getDescription()).isEqualTo("userIcon");
 		window.list("passwordList");
 		window.button("addButton").requireDisabled();
-		assertEquals("addIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("addButton").target().getIcon()).getDescription()).isEqualTo("addIcon");
 		window.button("copyButton").requireDisabled();
-		assertEquals("copyIcon",((ImageIcon)window.button("copyButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("copyButton").target().getIcon()).getDescription()).isEqualTo("copyIcon");
 		window.button("deleteButton").requireDisabled();
-		assertEquals("deleteIcon",((ImageIcon)window.button("deleteButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("deleteButton").target().getIcon()).getDescription()).isEqualTo("deleteIcon");
 		window.button("clearSelectionButton").requireDisabled();
-		assertEquals("deselectIcon",((ImageIcon)window.button("clearSelectionButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("clearSelectionButton").target().getIcon()).getDescription()).isEqualTo("deselectIcon");
 		window.label(JLabelMatcher.withText("site")).requireVisible();
-		assertEquals(10,((JTextField)window.textBox("siteTextField").target()).getColumns());
+		assertThat(((JTextField)window.textBox("siteTextField").target()).getColumns()).isEqualTo(10);
 		window.textBox("siteTextField").requireText("");
 		window.label(JLabelMatcher.withText("user")).requireVisible();
-		assertEquals(10,((JTextField)window.textBox("userTextField").target()).getColumns());
+		assertThat(((JTextField)window.textBox("userTextField").target()).getColumns()).isEqualTo(10);
 		window.textBox("userTextField").requireText("");
 		window.label("mainPasswordLabel").requireVisible();
 		window.textBox("passwordMainPasswordField").requireText("");
 		window.button("generateButton").requireEnabled();
-		assertEquals("generatePasswordIcon",((ImageIcon)window.button("generateButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("generateButton").target().getIcon()).getDescription()).isEqualTo("generatePasswordIcon");
 		window.button("showPasswordToggle").requireDisabled();
-		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("showPasswordIcon");
 	}
 
 	@Test
@@ -344,7 +340,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.menuItemWithPath("Logout").click();
 		window.tabbedPane("loginregisterTabbedPane").requireVisible();
 		passwordList.requireItemCount(0);
-		assertEquals("",menuUser.target().getText());
+		assertThat(menuUser.target().getText()).isEmpty();
 	}
 
 	@Test
@@ -474,7 +470,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("siteTextField").requireText("s");
 		window.textBox("userTextField").requireText("u");
 		window.textBox("passwordMainPasswordField").requireText("p");
-		assertEquals("saveIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("addButton").target().getIcon()).getDescription()).isEqualTo("saveIcon");
 		GuiActionRunner.execute(() -> window.label("errorMainLabel").target().setText("a"));
 		window.button("showPasswordToggle").click();
 		window.button("clearSelectionButton").click();
@@ -486,8 +482,8 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("showPasswordToggle").requireDisabled();
 		window.button("clearSelectionButton").requireDisabled();
 		window.label("errorMainLabel").requireText("");
-		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
-		assertEquals("addIcon",((ImageIcon)window.button("addButton").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("showPasswordIcon");
+		assertThat(((ImageIcon)window.button("addButton").target().getIcon()).getDescription()).isEqualTo("addIcon");
 	}
 
 	@Test
@@ -540,7 +536,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(""), null);
 		window.button("copyButton").click();
 		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-		assertEquals("pass", copiedString);
+		assertThat(copiedString).isEqualTo("pass");
 	}
 
 	@Test
@@ -588,7 +584,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> passwordManagerView.userLoggedOrRegistered(u1));
 		window.button("generateButton").click();
 		window.button("showPasswordToggle").requireEnabled();
-		assertTrue(StringValidator.isValidPassword(window.textBox("passwordMainPasswordField").text()));
+		assertThat(StringValidator.isValidPassword(window.textBox("passwordMainPasswordField").text())).isTrue();
 	}
 
 	@Test
@@ -608,9 +604,9 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordMainPasswordField").enterText("p");
 		JPasswordField p = (JPasswordField) window.textBox("passwordMainPasswordField").target();
 		window.button("showPasswordToggle").click();
-		assertEquals(0, p.getEchoChar());
+		assertThat((int) p.getEchoChar()).isZero();
 		window.button("showPasswordToggle").click();
-		assertEquals('•', p.getEchoChar());
+		assertThat(p.getEchoChar()).isEqualTo('•');
 	}
 
 	@Test
@@ -622,12 +618,12 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.list("passwordList").selectItem(0);
 		JPasswordField p = (JPasswordField) window.textBox("passwordMainPasswordField").target();
 		window.button("showPasswordToggle").click();
-		assertEquals(0, p.getEchoChar());
-		assertEquals("p", String.valueOf(p.getPassword()));
-		assertEquals("hidePasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+		assertThat((int) p.getEchoChar()).isZero();
+		assertThat(String.valueOf(p.getPassword())).isEqualTo("p");
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("hidePasswordIcon");
 		window.button("showPasswordToggle").click();
-		assertEquals('•', p.getEchoChar());
-		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+		assertThat(p.getEchoChar()).isEqualTo('•');
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("showPasswordIcon");
 	}
 
 	@Test
@@ -701,7 +697,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> passwordManagerView.passwordAddedOrUpdated(p2));
 
 		String[] listContents = window.list().contents();
-		assertEquals(2, listContents.length);
+		assertThat(listContents).hasSize(2);
 		assertThat(listContents[1]).contains("s2 -user: u2");
 		window.button("addButton").requireDisabled();
 		window.button("copyButton").requireDisabled();
@@ -713,7 +709,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("generateButton").requireEnabled();
 		window.button("showPasswordToggle").requireDisabled();
 		window.label("errorMainLabel").requireText("");
-		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("showPasswordIcon");
 	}
 
 	@Test
@@ -762,7 +758,7 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		window.button("generateButton").requireEnabled();
 		window.button("showPasswordToggle").requireDisabled();
 		window.label("errorMainLabel").requireText("");
-		assertEquals("showPasswordIcon",((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription());
+		assertThat(((ImageIcon)window.button("showPasswordToggle").target().getIcon()).getDescription()).isEqualTo("showPasswordIcon");
 	}
 	
 	@Test
@@ -811,8 +807,8 @@ public class PasswordManagerViewImplTest extends AssertJSwingJUnitTestCase {
 		p.setPassword("dsds", u1.getPassword());
 		p.setSalt(new byte[12]);
 		String decrypted = GuiActionRunner.execute(() -> { return passwordManagerView.decryptPassword(p);});
-		assertNull(decrypted);
-		assertNotEquals(window.label("errorMainLabel").target().getText(),"");
+		assertThat(decrypted).isNull();
+		assertThat(window.label("errorMainLabel").target().getText()).isNotEqualTo("");
     }
 	
 	private String decrypt(Password password, String userHashedPassword) {

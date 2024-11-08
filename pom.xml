@@ -15,7 +15,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<!--For each rule to be ignore, add another eXX and two corresponding properties with eXX in the name as below -->
 		<sonar.issue.ignore.multicriteria>e11,e12</sonar.issue.ignore.multicriteria>
-		<!-- Disable rule for "Tests should include assertions": SonarQube isnot aware of AssertJ Swing -->
+		<!-- Disable rule for "Tests should include assertions": SonarQube is not aware of AssertJ Swing -->
 		<sonar.issue.ignore.multicriteria.e11.ruleKey>
 			java:S2699
 		</sonar.issue.ignore.multicriteria.e11.ruleKey>
@@ -37,11 +37,7 @@
 			${project.build.directory}/surefire-reports,
 			${project.build.directory}/failsafe-reports
 		</sonar.junit.reportPaths>
-		<testcontainers.version>1.19.3</testcontainers.version>
-		<db_host>localhost</db_host>
-		<db_username>root</db_username>
-		<db_password></db_password>
-		<db_port>3306</db_port>
+		<testcontainers.version>1.20.4</testcontainers.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -53,40 +49,24 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.17.1</version>
+			<version>3.27.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.17.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.17.1</version>
+			<version>2.24.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>3.4.1</version>
+			<version>3.5.1</version>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>5.6.15.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.6.1</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -97,12 +77,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-reload4j</artifactId>
-			<version>1.7.36</version>
+			<version>2.0.16</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
+			<artifactId>spring-security-crypto</artifactId>
 			<version>5.8.0</version>
 		</dependency>
 		<dependency>
@@ -112,9 +92,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-imaging</artifactId>
-			<version>1.0.0-alpha5</version>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing</artifactId>
+			<version>3.17.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
@@ -131,178 +111,167 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mariadb</artifactId>
-			<version>1.20.0</version>
+			<version>1.20.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
-		<pluginManagement>
-			<!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-			<plugins>
-				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-				<plugin>
-					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
-				</plugin>
-				<!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-				<plugin>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.1</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.22.2</version>
-				</plugin>
-				<!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-				<plugin>
-					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7.1</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-project-info-reports-plugin</artifactId>
-					<version>3.0.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.pitest</groupId>
-					<artifactId>pitest-maven</artifactId>
-					<version>1.17.0</version>
-					<configuration>
-						<features>
-							<feature>-MACOS_FOCUS</feature>
-							<feature>+auto_threads</feature>
-						</features>
-						<jvmArgs>
-							<jvmArg>-Djava.awt.headless=false</jvmArg>
-						</jvmArgs>
-						<targetClasses>
-							<param>ast.projects.passwordmanager.app.StringValidator</param>
-							<param>ast.projects.passwordmanager.model.*</param>
-							<param>ast.projects.passwordmanager.controller.*</param>
-							<param>ast.projects.passwordmanager.view.*</param>
-							<param>ast.projects.passwordmanager.repository.*</param>
-						</targetClasses>
-						<avoidCallsTo>
-							<param>java.awt.Window</param>
-							<param>javax.swing.JComponent</param>
-							<param>java.awt.Container</param>
-							<param>javax.swing.JFrame</param>
-							<param>javax.swing.JPanel</param>
-							<param>javax.swing.JLabel</param>
-							<param>javax.swing.ImageIcon</param>
-							<param>javax.swing.JMenu</param>
-							<param>javax.swing.JMenuItem</param>
-							<param>javax.swing.JButton</param>
-							<param>javax.swing.JScrollPane</param>
-							<param>javax.swing.JTextField</param>
-							<param>javax.swing.JPasswordField</param>
-							<param>javax.swing.JTabbedPane</param>
-							<param>java.awt.CardLayout</param>
-							<param>javax.swing.JList</param>
-						</avoidCallsTo>
-						<targetTests>
-							<param>ast.projects.passwordmanager.*</param>
-							<param>ast.projects.passwordmanager.app.StringValidatorTest</param>
-						</targetTests>
-						<mutators>
-							<mutator>DEFAULTS</mutator>
-						</mutators>
-						<mutationThreshold>100</mutationThreshold>
-						<excludedTestClasses>
-							<param>ast.projects.passwordmanager.**.*IT</param>
-							<param>ast.projects.passwordmanager.**.*E2E</param>
-						</excludedTestClasses>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.8</version>
-					<configuration>
-						<excludes>
-							<exclude>**/PasswordManagerSwingApp.*</exclude>
-							<exclude>**/src/test/java**</exclude>
-							<exclude>**/src/it/java**</exclude>
-							<exclude>**/src/e2e/java**</exclude>
-							<exclude>**/User.setUsername()</exclude>
-							<exclude>**/User.setEmail()</exclude>
-							<exclude>**/User.setPassword()</exclude>
-							<exclude>**/Password.get**</exclude>
-							<exclude>**/Password.set**</exclude>
-						</excludes>
-					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<!-- binds by default to the phase "initialize" -->
-								<goal>prepare-agent</goal>
-								<!-- binds by default to the phase "verify" -->
-								<goal>report</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>jacoco-check</id>
-							<goals>
-								<!-- binds by default to the phase "verify" -->
-								<goal>check</goal>
-							</goals>
-							<configuration>
-								<rules>
-									<rule>
-										<element>PACKAGE</element>
-										<limits>
-											<limit>
-												<counter>LINE</counter>
-												<value>COVEREDRATIO</value>
-												<minimum>1</minimum>
-											</limit>
-										</limits>
-									</rule>
-								</rules>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.eluder.coveralls</groupId>
-					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.3.0</version>
-					<dependencies>
-						<!-- This is required when using JDK 9 or higher since javax.xml.bind has been removed from the JDK -->
-						<dependency>
-							<groupId>javax.xml.bind</groupId>
-							<artifactId>jaxb-api</artifactId>
-							<version>2.3.1</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>org.sonarsource.scanner.maven</groupId>
-					<artifactId>sonar-maven-plugin</artifactId>
-					<version>4.0.0.4121</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
+			<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.1.0</version>
+			</plugin>
+			<!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.22.2</version>
+			</plugin>
+			<!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.7.1</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.17.0</version>
+				<configuration>
+					<features>
+						<feature>-MACOS_FOCUS</feature>
+						<feature>+auto_threads</feature>
+					</features>
+					<jvmArgs>
+						<jvmArg>-Djava.awt.headless=false</jvmArg>
+					</jvmArgs>
+					<targetClasses>
+						<param>ast.projects.passwordmanager.app.StringValidator</param>
+						<param>ast.projects.passwordmanager.model.*</param>
+						<param>ast.projects.passwordmanager.controller.*</param>
+						<param>ast.projects.passwordmanager.view.*</param>
+						<param>ast.projects.passwordmanager.repository.*</param>
+					</targetClasses>
+					<avoidCallsTo>
+						<param>java.awt.Window</param>
+						<param>javax.swing.JComponent</param>
+						<param>java.awt.Container</param>
+						<param>javax.swing.JFrame</param>
+						<param>javax.swing.JPanel</param>
+						<param>javax.swing.JLabel</param>
+						<param>javax.swing.ImageIcon</param>
+						<param>javax.swing.JMenu</param>
+						<param>javax.swing.JMenuItem</param>
+						<param>javax.swing.JButton</param>
+						<param>javax.swing.JScrollPane</param>
+						<param>javax.swing.JTextField</param>
+						<param>javax.swing.JPasswordField</param>
+						<param>javax.swing.JTabbedPane</param>
+						<param>java.awt.CardLayout</param>
+						<param>javax.swing.JList</param>
+					</avoidCallsTo>
+					<targetTests>
+						<param>ast.projects.passwordmanager.*</param>
+						<param>
+							ast.projects.passwordmanager.app.StringValidatorTest</param>
+					</targetTests>
+					<mutators>
+						<mutator>DEFAULTS</mutator>
+					</mutators>
+					<mutationThreshold>100</mutationThreshold>
+					<excludedTestClasses>
+						<param>ast.projects.passwordmanager.**.*IT</param>
+						<param>ast.projects.passwordmanager.**.*E2E</param>
+					</excludedTestClasses>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.8</version>
+				<configuration>
+					<excludes>
+						<exclude>**/PasswordManagerSwingApp.*</exclude>
+						<exclude>**/src/test/java**</exclude>
+						<exclude>**/src/it/java**</exclude>
+						<exclude>**/src/e2e/java**</exclude>
+						<exclude>**/User.setUsername()</exclude>
+						<exclude>**/User.setEmail()</exclude>
+						<exclude>**/User.setPassword()</exclude>
+						<exclude>**/Password.get**</exclude>
+						<exclude>**/Password.set**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>PACKAGE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>1</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>4.3.0</version>
+				<dependencies>
+					<!-- This is required when using JDK 9 or higher since javax.xml.bind has been removed from the JDK -->
+					<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>2.3.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>4.0.0.4121</version>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -326,11 +295,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<environmentVariables>
-						<TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
-					</environmentVariables>
-				</configuration>
+				<version>2.22.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -383,12 +348,22 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>ast.projects.passwordmanager.app.PasswordManagerSwingApp</mainClass>
+									<mainClass>
+										ast.projects.passwordmanager.app.PasswordManagerSwingApp</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<mainClass>
+						ast.projects.passwordmanager.app.PasswordManagerSwingApp</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 		<resources>
@@ -399,113 +374,6 @@
 		</resources>
 	</build>
 	<profiles>
-		<profile>
-			<id>docker</id>
-			<properties>
-				<db_host>db</db_host>
-				<db_username>root</db_username>
-				<db_password>mypass</db_password>
-				<db_port>3306</db_port>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>io.fabric8</groupId>
-						<artifactId>docker-maven-plugin</artifactId>
-						<version>0.45.0</version>
-						<configuration>
-							<showLogs>true</showLogs>
-							<verbose>build</verbose>
-							<autoCreateCustomNetworks>true</autoCreateCustomNetworks>
-							<images>
-								<image>
-									<alias>java-app-password</alias>
-									<name>java-app-password</name>
-									<build>
-										<contextDir>${project.basedir}</contextDir>
-										<args>
-											<jarToCopy>${project.artifactId}-${project.version}-jar-with-dependencies.jar</jarToCopy>
-										</args>
-									</build>
-									<run>
-										<network>
-											<mode>custom</mode>
-											<name>app-network</name>
-										</network>
-										<wait>
-											<log>Hello World!</log>
-											<time>10000</time>
-										</wait>
-										<dependsOn>
-											<container>db</container>
-										</dependsOn>
-									</run>
-								</image>
-								<image>
-									<name>db</name>
-									<alias>db</alias>
-									<build>
-										<from>mariadb:10.5.5</from>
-										<healthCheck>
-											<interval>10s</interval>
-											<timeout>50s</timeout>
-											<retries>3</retries>
-											<start-period>20s</start-period>
-											<cmd>healthcheck.sh --connect --innodb_initialized</cmd>
-										</healthCheck>
-										<assembly>
-											<mode>dir</mode>
-											<targetDir>/docker-entrypoint-initdb.d</targetDir>
-											<inline>
-												<files>
-													<file>
-														<source>./mariadb-init.sql</source>
-													</file>
-												</files>
-											</inline>
-										</assembly>
-										<env>
-											<MARIADB_ROOT_PASSWORD>mypass</MARIADB_ROOT_PASSWORD>
-											<MARIADB_DATABASE>myDb</MARIADB_DATABASE>
-											<MARIADB_USER>myuser</MARIADB_USER>
-											<MARIADB_PASSWORD>mypass</MARIADB_PASSWORD>
-										</env>
-									</build>
-									<run>
-										<network>
-											<mode>custom</mode>
-											<name>app-network</name>
-											<alias>db</alias>
-										</network>
-										<wait>
-											<healthy>true</healthy>
-											<time>40000</time>
-										</wait>
-									</run>
-								</image>
-							</images>
-						</configuration>
-						<executions>
-							<execution>
-								<id>docker-build-image</id>
-								<phase>package</phase>
-								<goals>
-									<goal>build</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>docker-verify</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>start</goal>
-									<goal>stop</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>jacoco</id>
 			<build>

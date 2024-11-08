@@ -1,8 +1,6 @@
 package ast.projects.passwordmanager.view;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -103,8 +101,8 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Register")).click();
 
 		User u = userRepository.findByUsername("mariorossi");
-		assertTrue(u.getUsername().equals("mariorossi") && u.getEmail().equals("mariorossi@gmail.com")
-				&& u.isPasswordValid("Password123!"));
+		assertThat(u.getUsername().equals("mariorossi") && u.getEmail().equals("mariorossi@gmail.com")
+				&& u.isPasswordValid("Password123!")).isTrue();
 	}
 
 	@Test
@@ -116,7 +114,7 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Login")).click();
 		window.menuItemWithPath("Delete user").click();
-		assertEquals(null, userRepository.findByUsername("mariorossi"));
+		assertThat(userRepository.findByUsername("mariorossi")).isNull();
 	}
 
 	@Test
@@ -132,8 +130,8 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordMainPasswordField").enterText("p2");
 		window.button("addButton").click();
 		Password p = userRepository.findByUsername("mariorossi").getSitePasswords().get(0);
-		assertTrue(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
-				&& p.getUserId().equals(user.getId()));
+		assertThat(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
+				&& p.getUserId().equals(user.getId())).isTrue();
 	}
 
 	@Test
@@ -154,8 +152,8 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordMainPasswordField").setText("").enterText("p2");
 		window.button("addButton").click();
 		Password p = userRepository.findByUsername("mariorossi").getSitePasswords().get(0);
-		assertTrue(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
-				&& p.getUserId().equals(user.getId()));
+		assertThat(p.getUsername().equals("u2") && decrypt(p, user.getPassword()).equals("p2") && p.getSite().equals("s2")
+				&& p.getUserId().equals(user.getId())).isTrue();
 	}
 	
 	@Test
@@ -173,7 +171,7 @@ public class ModelViewControllerIT extends AssertJSwingJUnitTestCase {
 		window.panel("mainPane").requireVisible();
 		window.list("passwordList").selectItem(0);
 		window.button("deleteButton").click();
-		assertNull(passwordRepository.findById(password.getId()));
+		assertThat(passwordRepository.findById(password.getId())).isNull();
 	}
 
 	private void clearTable() {

@@ -1,8 +1,6 @@
 package ast.projects.passwordmanager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,97 +12,97 @@ public class StringValidatorTest {
 	
 	@Test
 	public void testEmailValidatorWhenCorrect() {
-		assertTrue(StringValidator.isValidEmail("prova@gmail.com"));
+		assertThat(StringValidator.isValidEmail("prova@gmail.com")).isTrue();
 	}
 	
 	@Test
 	public void testEmailValidatorReturnFalseWhenNoSpecifiedName() {
-		assertFalse(StringValidator.isValidEmail("@gmail.com"));
+		assertThat(StringValidator.isValidEmail("@gmail.com")).isFalse();
 	}
 	
 	@Test
 	public void testEmailValidatorReturnFalseWhenNoAtSign() {
-		assertFalse(StringValidator.isValidEmail("provagmail.com"));
+		assertThat(StringValidator.isValidEmail("provagmail.com")).isFalse();
 	}
 	
 	@Test
 	public void testEmailValidatorReturnFalseWhenNoValidDomain() {
-		assertFalse(StringValidator.isValidEmail("prova@gmail"));
+		assertThat(StringValidator.isValidEmail("prova@gmail")).isFalse();
 	}
 	
 	@Test
 	public void testEmailValidatorReturnFalseWhenNoDomain() {
-		assertFalse(StringValidator.isValidEmail("prova@"));
+		assertThat(StringValidator.isValidEmail("prova@")).isFalse();
 	}
 	
 	@Test
 	public void testStringValidatorWhenCorrect() {
-		assertEquals("mariorossi",StringValidator.isValidString("mariorossi"));
+		assertThat(StringValidator.isValidString("mariorossi")).isEqualTo("mariorossi");
 	}
 	
 	@Test
 	public void testStringValidatorWhenLeftSpaces() {
-		assertEquals("mariorossi",StringValidator.isValidString("   mariorossi"));
+		assertThat(StringValidator.isValidString("   mariorossi")).isEqualTo("mariorossi");
 	}
 	
 	@Test
 	public void testStringValidatorWhenRightSpaces() {
-		assertEquals("mariorossi",StringValidator.isValidString("mariorossi   "));
+		assertThat(StringValidator.isValidString("mariorossi   ")).isEqualTo("mariorossi");
 	}
 	
 	@Test
 	public void testStringValidatorWhenLeftAndRightSpaces() {
-		assertEquals("mariorossi",StringValidator.isValidString("   mariorossi   "));
+		assertThat(StringValidator.isValidString("   mariorossi   ")).isEqualTo("mariorossi");
 	}
 	
 	@Test
 	public void testStringValidatorWhenStringIsNull() {
-		assertEquals(null,StringValidator.isValidString(null));
+		assertThat(StringValidator.isValidString(null)).isNull();
 	}
 	
 	@Test
 	public void testStringValidatorWhenStringIsEmpty() {
-		assertEquals(null,StringValidator.isValidString(""));
+		assertThat(StringValidator.isValidString("")).isNull();
 	}
 	
 	@Test
 	public void testStringValidatorWhenStringIsSpacesOnly() {
-		assertEquals(null,StringValidator.isValidString("   "));
+		assertThat(StringValidator.isValidString("   ")).isNull();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordIsValid() {
-		assertTrue(StringValidator.isValidPassword("Password123!"));
+		assertThat(StringValidator.isValidPassword("Password123!")).isTrue();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordIsTooShort() {
-		assertFalse(StringValidator.isValidPassword("Pa3@"));
+		assertThat(StringValidator.isValidPassword("Pa3@")).isFalse();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordHasNotUpperCase() {
-		assertFalse(StringValidator.isValidPassword("password123@"));
+		assertThat(StringValidator.isValidPassword("password123@")).isFalse();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordHasNotLowerCase() {
-		assertFalse(StringValidator.isValidPassword("PASSWORD123@"));
+		assertThat(StringValidator.isValidPassword("PASSWORD123@")).isFalse();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordHasNotSpecialCharacters() {
-		assertFalse(StringValidator.isValidPassword("Password123"));
+		assertThat(StringValidator.isValidPassword("Password123")).isFalse();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordContainsWhiteSpace() {
-		assertFalse(StringValidator.isValidPassword("Password123@ "));
+		assertThat(StringValidator.isValidPassword("Password123@ ")).isFalse();
 	}
 	
 	@Test
 	public void testPasswordValidatorWhenPasswordContainsWhiteSpaces() {
-		assertFalse(StringValidator.isValidPassword("Pass word123@   "));
+		assertThat(StringValidator.isValidPassword("Pass word123@   ")).isFalse();
 	}
 	
 	@Test
@@ -112,7 +110,7 @@ public class StringValidatorTest {
 		PasswordEncoder pw = new BCryptPasswordEncoder();
 		String clearPass = "Password123!";
 		String encodedPass = pw.encode(clearPass);
-		assertTrue(StringValidator.checkPasswordMatch(clearPass, encodedPass));
+		assertThat(StringValidator.checkPasswordMatch(clearPass, encodedPass)).isTrue();
 	}
 	
 	@Test
@@ -120,13 +118,13 @@ public class StringValidatorTest {
 		PasswordEncoder pw = new BCryptPasswordEncoder();
 		String clearPass = "Password123!";
 		String encodedPass = pw.encode(clearPass);
-		assertFalse(StringValidator.checkPasswordMatch("Password123@", encodedPass));
+		assertThat(StringValidator.checkPasswordMatch("Password123@", encodedPass)).isFalse();
 	}
 	
 	@Test
 	public void testGeneratedPasswordIsValid() {
 		String generatedPassword = StringValidator.generatePassword();
-		assertEquals(8, generatedPassword.length());
-		assertTrue(StringValidator.isValidPassword(generatedPassword));
+		assertThat(generatedPassword).hasSize(8);
+		assertThat(StringValidator.isValidPassword(generatedPassword)).isTrue();
 	}
 }

@@ -54,7 +54,7 @@ public class Password {
 	private byte[] iv;
 
 	@Column(name = "user_id", nullable = false)
-    private Integer userId;
+	private Integer userId;
 
 	@Transient
 	private String userHashedPsw;

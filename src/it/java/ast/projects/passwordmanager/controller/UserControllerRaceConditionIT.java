@@ -1,12 +1,10 @@
 package ast.projects.passwordmanager.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.hibernate.Session;
@@ -27,16 +25,7 @@ import ast.projects.passwordmanager.model.User;
 import ast.projects.passwordmanager.repository.UserRepositoryImpl;
 import ast.projects.passwordmanager.view.PasswordManagerView;
 
-/**
- * Communicates with a MariaDB server on localhost; start MongoDB with Docker with
- * 
- * <pre>
- * docker run --rm mariadb:10.5.5
- * </pre>
- * 
- * @author Marco Trambusti
- *
- */
+
 public class UserControllerRaceConditionIT {
 	
 	private static final MariaDBContainer<?> MARIA_DB_CONTAINER = new MariaDBContainer<>(DockerImageName.parse("mariadb:10.5.5"));
@@ -45,7 +34,7 @@ public class UserControllerRaceConditionIT {
 	
 	@Mock
 	private PasswordManagerView view;
-  
+
 	@InjectMocks
 	private UserController userController;
 	
@@ -69,32 +58,29 @@ public class UserControllerRaceConditionIT {
 	
 	@After
 	public void releaseMocks() throws Exception {
+		if (factory != null) {
+			factory.close();
+		}
 		if (mariaDB != null && mariaDB.isRunning()) {
 			mariaDB.close();
 		}
-		factory.close();
 		closeable.close();
 	}
 	
 	@Test
 	public void testNewUser() throws InterruptedException {
-		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		int numberOfThreads = 10;
 		CountDownLatch latch = new CountDownLatch(numberOfThreads); // Number of threads
-		IntStream.range(0, numberOfThreads)
-				.mapToObj(i -> new Thread(() ->{
-					new UserController(view, userRepository).newUser(user);
-		 			latch.countDown();
-				}))
-				.peek(t -> t.start())
-				.collect(Collectors.toList());
-				// wait for all the threads to finish
+		IntStream.range(0, numberOfThreads).mapToObj(i -> new Thread(() ->{
+			User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+			new UserController(view, userRepository).newUser(user);
+			latch.countDown();
+		})).forEach(Thread::start);
 		latch.await();
-				// there should be a single element in the list
 		List<User> userFound = userRepository.findAll();
-		assertEquals(1,userFound.size());
+		assertThat(userFound).hasSize(1);
 		User u = userFound.get(0);
-        assertTrue(u.getUsername().equals(user.getUsername()) && u.getEmail().equals(user.getEmail()) && u.getPassword().equals(user.getPassword()));
+		assertThat(u.getUsername().equals("mariorossi") && u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")).isTrue();
 	}
 	
 	private void clearTable() {

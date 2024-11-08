@@ -15,6 +15,10 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 		this.sessionFactory = sessionFactory;
 	}
 
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
 	Session getCurrentSession() {
 		return currentSession;
 	}
@@ -22,7 +26,7 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 	@Override
 	public void save(Password password) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		try {
 			session.beginTransaction();
 			if(password.getId() != null) {
@@ -42,7 +46,7 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 	@Override
 	public Password findById(int id) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		Password result;
 		try {
 			Query<Password> query = session.createQuery("FROM Password p WHERE p.id = :password_id", Password.class);
@@ -60,7 +64,7 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 	@Override
 	public void delete(Password password) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		try {
 			session.beginTransaction();
 			session.delete(password);
@@ -71,10 +75,6 @@ public class PasswordRepositoryImpl implements PasswordRepository {
 		} finally {
 			session.close();
 		}
-	}
-
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
 	}
 
 }

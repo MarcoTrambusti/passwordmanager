@@ -1,7 +1,6 @@
 package ast.projects.passwordmanager.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 
@@ -79,7 +78,7 @@ public class UserControllerIT {
 		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
         userController.newUser(user);
         User usr = userRepository.findByUsername("mariorossi");
-        assertTrue(usr.getUsername().equals(user.getUsername()) && usr.getEmail().equals(user.getEmail()) && usr.getPassword().equals(user.getPassword()));
+        assertThat(usr.getUsername().equals(user.getUsername()) && usr.getEmail().equals(user.getEmail()) && usr.getPassword().equals(user.getPassword())).isTrue();
         verify(view).userLoggedOrRegistered(argThat(u -> u.getUsername().equals("mariorossi")
 				&& u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@")));
 	}
@@ -89,7 +88,7 @@ public class UserControllerIT {
 		User userTodelete = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		userRepository.save(userTodelete);
 		userController.deleteUser(userTodelete);
-		assertEquals(null, userRepository.findByUsername("mariorossi"));
+		assertThat(userRepository.findByUsername("mariorossi")).isNull();
 		verify(view).userLogout();
 	}
 	

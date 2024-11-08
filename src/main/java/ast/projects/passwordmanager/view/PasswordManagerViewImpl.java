@@ -79,9 +79,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 	private JButton btnLogin;
 	private JButton btnRegister;
 	private JButton btnAdd;
-	private JButton btnS;
-	private JButton btnC;
-	private JButton btnD;
+	private JButton btnShowPsw;
+	private JButton btnCopy;
+	private JButton btnDelete;
 	private JList<Password> listPassword;
 	private ImageIcon iconShowPass;
 	private ImageIcon iconHidePass;
@@ -168,19 +168,19 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		gbcScrollPane.gridy = 2;
 		mainPane.add(scrollPane, gbcScrollPane);
 
-		btnD = new JButton("");
-		btnD.setName("deleteButton");
+		btnDelete = new JButton("");
+		btnDelete.setName("deleteButton");
 		ImageIcon iconDelete = new ImageIcon(new ImageIcon(classLoader.getResource("delete.png")).getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 		iconDelete.setDescription("deleteIcon");
-		btnD.setIcon(iconDelete);
-		btnD.setEnabled(false);
+		btnDelete.setIcon(iconDelete);
+		btnDelete.setEnabled(false);
 		GridBagConstraints gbcBtnD = new GridBagConstraints();
 		gbcBtnD.insets = new Insets(0, 0, 5, 0);
 		gbcBtnD.gridx = 3;
 		gbcBtnD.gridy = 2;
-		mainPane.add(btnD, gbcBtnD);
+		mainPane.add(btnDelete, gbcBtnD);
 
-		btnD.addActionListener(e ->passwordController.deletePassword(selectedPassword));
+		btnDelete.addActionListener(e ->passwordController.deletePassword(selectedPassword));
 
 		listPasswordModel = new DefaultListModel<>();
 		listPassword = new JList<>(listPasswordModel);
@@ -221,9 +221,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 				textFieldUser.setText(selectedPassword.getUsername());
 				passwordFieldMain.setText(decryptPassword(selectedPassword));
 				btnAdd.setIcon(iconSave);
-				btnD.setEnabled(true);
-				btnC.setEnabled(true);
-				btnS.setEnabled(true);
+				btnDelete.setEnabled(true);
+				btnCopy.setEnabled(true);
+				btnShowPsw.setEnabled(true);
 				btnClearSelection.setEnabled(true);
 			} else {
 				selectedPassword = null;
@@ -237,18 +237,18 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		listPassword.setName("passwordList");
 		scrollPane.setViewportView(listPassword);
 
-		btnC = new JButton("");
-		btnC.setName("copyButton");
+		btnCopy = new JButton("");
+		btnCopy.setName("copyButton");
 		ImageIcon iconCopy = new ImageIcon(new ImageIcon(classLoader.getResource("content_copy.png")).getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 		iconCopy.setDescription("copyIcon");
-		btnC.setIcon(iconCopy);
-		btnC.setEnabled(false);
+		btnCopy.setIcon(iconCopy);
+		btnCopy.setEnabled(false);
 		GridBagConstraints gbcBtnC = new GridBagConstraints();
 		gbcBtnC.insets = new Insets(0, 0, 5, 0);
 		gbcBtnC.gridx = 3;
 		gbcBtnC.gridy = 3;
-		mainPane.add(btnC, gbcBtnC);
-		btnC.addActionListener(e -> copyCurrentPassword());
+		mainPane.add(btnCopy, gbcBtnC);
+		btnCopy.addActionListener(e -> copyCurrentPassword());
 
 		JLabel lblSite = new JLabel("site");
 		GridBagConstraints gbcLblSite = new GridBagConstraints();
@@ -268,7 +268,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		KeyAdapter togglePasswordEnabler = new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				btnS.setEnabled(!String.valueOf(passwordFieldMain.getPassword()).trim().isEmpty());
+				btnShowPsw.setEnabled(!String.valueOf(passwordFieldMain.getPassword()).trim().isEmpty());
 			}
 		};
 
@@ -338,20 +338,20 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		gbcPasswordFieldMain.gridy = 9;
 		mainPane.add(passwordFieldMain, gbcPasswordFieldMain);
 
-		btnS = new JButton("");
-		btnS.setEnabled(false);
-		btnS.setName("showPasswordToggle");
+		btnShowPsw = new JButton("");
+		btnShowPsw.setEnabled(false);
+		btnShowPsw.setName("showPasswordToggle");
 		iconShowPass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_on.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
 		iconShowPass.setDescription("showPasswordIcon");
 		iconHidePass = new ImageIcon(new ImageIcon(classLoader.getResource("visibility_off.png")).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
 		iconHidePass.setDescription("hidePasswordIcon");
-		btnS.setIcon(iconShowPass);
+		btnShowPsw.setIcon(iconShowPass);
 		GridBagConstraints gbcBtnS = new GridBagConstraints();
 		gbcBtnS.insets = new Insets(0, 0, 5, 5);
 		gbcBtnS.gridx = 2;
 		gbcBtnS.gridy = 9;
-		mainPane.add(btnS, gbcBtnS);
-		btnS.addActionListener(e -> toggleShowPassword(iconShowPass, iconHidePass));
+		mainPane.add(btnShowPsw, gbcBtnS);
+		btnShowPsw.addActionListener(e -> toggleShowPassword(iconShowPass, iconHidePass));
 
 		JButton btnGenerate = new JButton("");
 		btnGenerate.setName("generateButton");
@@ -365,7 +365,7 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		btnGenerate.addActionListener(e -> {
 			passwordFieldMain.setText(StringValidator.generatePassword());
 			enableAddBtn();
-			btnS.setEnabled(true);
+			btnShowPsw.setEnabled(true);
 		});
 		mainPane.add(btnGenerate, gbcBtnGenerate);
 
@@ -568,10 +568,10 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		showPasswordMain = !showPasswordMain;
 		if (showPasswordMain) {
 			passwordFieldMain.setEchoChar((char) 0);
-			btnS.setIcon(iconHidePass);
+			btnShowPsw.setIcon(iconHidePass);
 		} else {
 			passwordFieldMain.setEchoChar('•');
-			btnS.setIcon(iconShowPass);
+			btnShowPsw.setIcon(iconShowPass);
 		}
 	}
 
@@ -649,9 +649,9 @@ public class PasswordManagerViewImpl extends JFrame implements PasswordManagerVi
 		passwordFieldMain.setText("");
 		lblErrorMessage.setText("");
 		btnAdd.setEnabled(false);
-		btnC.setEnabled(false);
-		btnD.setEnabled(false);
-		btnS.setEnabled(false);
+		btnCopy.setEnabled(false);
+		btnDelete.setEnabled(false);
+		btnShowPsw.setEnabled(false);
 		btnClearSelection.setEnabled(false);
 		if (showPasswordMain) {
 			toggleShowPassword(iconShowPass, iconHidePass);

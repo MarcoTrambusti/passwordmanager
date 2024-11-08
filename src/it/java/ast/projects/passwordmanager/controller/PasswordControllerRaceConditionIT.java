@@ -1,7 +1,6 @@
 package ast.projects.passwordmanager.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -10,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.crypto.BadPaddingException;
@@ -76,10 +74,12 @@ public class PasswordControllerRaceConditionIT {
 
 	@After
 	public void releaseMocks() throws Exception {
+		if (factory != null) {
+			factory.close();
+		}
 		if (mariaDB != null && mariaDB.isRunning()) {
 			mariaDB.close();
 		}
-		factory.close();
 		closeable.close();
 	}
 
@@ -91,14 +91,14 @@ public class PasswordControllerRaceConditionIT {
 		IntStream.range(0, numberOfThreads).mapToObj(i -> new Thread(() -> {
 			new PasswordController(view, passwordRepository).savePassword(password);
 			latch.countDown();
-		})).peek(t -> t.start()).collect(Collectors.toList());
+		})).forEach(Thread::start);
 		latch.await();
 		List<Password> passwordFound = readAllPasswordsFromDatabase();
-		assertEquals(1, passwordFound.size());
+		assertThat(passwordFound).hasSize(1);
 		Password p = passwordFound.get(0);
-		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
+		assertThat(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUserId().equals(password.getUserId()));
+				&& p.getUserId().equals(password.getUserId())).isTrue();
 	}
 	
 	@Test
@@ -112,14 +112,14 @@ public class PasswordControllerRaceConditionIT {
 			password.setSite("s2");
 			new PasswordController(view, passwordRepository).savePassword(password);
 			latch.countDown();
-		})).peek(t -> t.start()).collect(Collectors.toList());
+		})).forEach(Thread::start);
 		latch.await();
 		List<Password> passwordFound = readAllPasswordsFromDatabase();
-		assertEquals(1, passwordFound.size());
+		assertThat(passwordFound).hasSize(1);
 		Password p = passwordFound.get(0);
-		assertTrue(p.getUsername().equals("u2") && p.getId().equals(password.getId())
+		assertThat(p.getUsername().equals("u2") && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals("s2")
-				&& p.getUserId().equals(password.getUserId()));
+				&& p.getUserId().equals(password.getUserId())).isTrue();
 	}
 
 	private List<Password> readAllPasswordsFromDatabase() {

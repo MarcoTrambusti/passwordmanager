@@ -3,7 +3,6 @@ package ast.projects.passwordmanager.view;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
-import static org.junit.Assert.assertEquals;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -174,7 +173,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("Login")).click();
 		window.menuItemWithPath("Delete user").click();
 		window.tabbedPane("loginregisterTabbedPane").requireVisible();
-		assertEquals(null, userRepository.findByUsername("mariorossi"));
+		assertThat(userRepository.findByUsername("mariorossi")).isNull();
 	}
 	
 	@Test
@@ -195,7 +194,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 
         }, timeout(3500));
 		window.tabbedPane("loginregisterTabbedPane").requireVisible();
-		assertEquals(null, userRepository.findByUsername("mariorossi"));
+		assertThat(userRepository.findByUsername("mariorossi")).isNull();
 	}
 	
 	@Test
@@ -242,7 +241,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.list("passwordList").selectItem(0);
 		window.button("copyButton").click();
 		String copiedString = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-		assertEquals("p2", copiedString);
+		assertThat(copiedString).isEqualTo("p2");
 	}
 	
 	@Test
@@ -295,7 +294,7 @@ public class PasswordManagerViewIT extends AssertJSwingJUnitTestCase {
 		window.textBox("passwordPasswordField").enterText("Password123!");
 		window.button(JButtonMatcher.withText("Login")).click();
 		String[] listContents = window.list().contents();
-		assertEquals(1, listContents.length);
+		assertThat(listContents).hasSize(1);
 		window.menuItemWithPath("Logout").click();
 		window.textBox("usrmailTextField").setText("newuser@");
 		window.textBox("usrmailTextField").enterText("gmail.com");

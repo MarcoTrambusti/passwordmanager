@@ -10,8 +10,9 @@ public class StringValidator {
 	private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";
 	private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	private static SecureRandom random = new SecureRandom();
+
 	private StringValidator() {}
-	
+
 	public static boolean isValidEmail(String email) {
 		Pattern pattern = Pattern.compile(EMAIL_REGEX);
 		Matcher matcher = pattern.matcher(email);
@@ -20,7 +21,7 @@ public class StringValidator {
 	}
 
 	public static String isValidString(String string) {
-		if (string == null || (string.trim()).length() == 0) {
+		if (string == null || (string.trim()).isEmpty()) {
 			return null;
 		}
 
@@ -38,7 +39,7 @@ public class StringValidator {
 
 	public static String generatePassword() {
 		String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d\\s])\\S{8,}$";
-		
+
 		String charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+=";
 		StringBuilder password;
 

@@ -1,7 +1,6 @@
 package ast.projects.passwordmanager.controller;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import java.net.URI;
@@ -92,8 +91,8 @@ public class PasswordControllerIT {
 		Password p1 = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		passwordController.savePassword(p1);
 		Password p = userRepository.findByUsername(user.getUsername()).getSitePasswords().get(0);
-		assertTrue(p.getSite().equals("s1") && p.getUsername().equals("u1")
-				&& decrypt(p, user.getPassword()).equals("pass1") && p.getUserId().equals(user.getId()));
+		assertThat(p.getSite().equals("s1") && p.getUsername().equals("u1")
+				&& decrypt(p, user.getPassword()).equals("pass1") && p.getUserId().equals(user.getId())).isTrue();
 		verify(view).passwordAddedOrUpdated(p1);
 	}
 
@@ -102,7 +101,7 @@ public class PasswordControllerIT {
 		Password p1 = new Password("s1", "u1", "pass1", user.getId(), user.getPassword());
 		passwordRepository.save(p1);
 		passwordController.deletePassword(p1);
-		assertNull(passwordRepository.findById(p1.getId()));
+		assertThat(passwordRepository.findById(p1.getId())).isNull();
 		verify(view).passwordAddedOrUpdated(p1);
 	}
 	

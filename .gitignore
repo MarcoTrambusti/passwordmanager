@@ -1,7 +1,7 @@
 # Eclipse specific files
-.project
-.classpath
-.settings/
+#.project
+#.classpath
+#.settings/
 
 # Maven specific files
 target/
@@ -11,7 +11,7 @@ pom.xml.versionsBackup
 pom.xml.next
 
 # Eclipse-specific files
-.metadata/
+#.metadata/
 bin/
 tmp/
 
@@ -25,8 +25,8 @@ tmp/
 
 # Java specific files
 *.log
-*.classpath
-*.project
+#*.classpath
+#*.project
 
 # OS-specific files
 *.swp

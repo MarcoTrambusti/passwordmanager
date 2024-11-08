@@ -1,7 +1,6 @@
 package ast.projects.passwordmanager.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -77,11 +76,11 @@ public class PasswordRepositoryIT {
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		passwordRepository.save(password);
-		assertEquals(1, readAllPasswordsFromDatabase().size());
+		assertThat(readAllPasswordsFromDatabase()).hasSize(1);
 		Password p = readAllPasswordsFromDatabase().get(0);
-		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
+		assertThat(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUserId().equals(password.getUserId()));
+				&& p.getUserId().equals(password.getUserId())).isTrue();
 	}
 
 	@Test
@@ -89,9 +88,9 @@ public class PasswordRepositoryIT {
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
 		Password p = passwordRepository.findById(password.getId());
-		assertTrue(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
+		assertThat(p.getUsername().equals(password.getUsername()) && p.getId().equals(password.getId())
 				&& p.getPassword().equals(password.getPassword()) && p.getSite().equals(password.getSite())
-				&& p.getUserId().equals(password.getUserId()));
+				&& p.getUserId().equals(password.getUserId())).isTrue();
 	}
 
 	@Test
@@ -99,7 +98,7 @@ public class PasswordRepositoryIT {
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 		Password password = addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
 		passwordRepository.delete(password);
-		assertTrue(readAllPasswordsFromDatabase().isEmpty());
+		assertThat(readAllPasswordsFromDatabase()).isEmpty();
 	}
 
 	private void clearTable() {
