@@ -50,7 +50,6 @@ public class PasswordManagerSwingApp {
 				String sqlFilePath = "./mariadb-init.sql";
 
 				initDB(url, username, password, sqlFilePath);
-				LogManager.getLogger().info("URL: ".concat(url));
 
 				SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", url+"password_manager").addAnnotatedClass(User.class).addAnnotatedClass(Password.class).buildSessionFactory();
 
@@ -64,7 +63,7 @@ public class PasswordManagerSwingApp {
 				view.setPasswordController(pswController);
 				view.setVisible(true);
 
-				LogManager.getLogger().info("Hello World!");
+				LogManager.getLogger().info("App Started Successfully");
 
 				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 					if (factory != null) {

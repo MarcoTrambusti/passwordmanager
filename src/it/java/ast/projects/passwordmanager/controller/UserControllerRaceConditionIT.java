@@ -69,32 +69,29 @@ public class UserControllerRaceConditionIT {
 	
 	@After
 	public void releaseMocks() throws Exception {
+		if (factory != null) {
+			factory.close();
+		}
 		if (mariaDB != null && mariaDB.isRunning()) {
 			mariaDB.close();
 		}
-		factory.close();
 		closeable.close();
 	}
 	
 	@Test
 	public void testNewUser() throws InterruptedException {
-		User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
 		int numberOfThreads = 10;
 		CountDownLatch latch = new CountDownLatch(numberOfThreads); // Number of threads
-		IntStream.range(0, numberOfThreads)
-				.mapToObj(i -> new Thread(() ->{
-					new UserController(view, userRepository).newUser(user);
-		 			latch.countDown();
-				}))
-				.peek(t -> t.start())
-				.collect(Collectors.toList());
-				// wait for all the threads to finish
+		IntStream.range(0, numberOfThreads).mapToObj(i -> new Thread(() ->{
+			User user = new User("mariorossi", "mariorossi@gmail.com", "Password123@");
+			new UserController(view, userRepository).newUser(user);
+ 			latch.countDown();
+		})).peek(t -> t.start()).collect(Collectors.toList());
 		latch.await();
-				// there should be a single element in the list
 		List<User> userFound = userRepository.findAll();
 		assertEquals(1,userFound.size());
 		User u = userFound.get(0);
-        assertTrue(u.getUsername().equals(user.getUsername()) && u.getEmail().equals(user.getEmail()) && u.getPassword().equals(user.getPassword()));
+        assertTrue(u.getUsername().equals("mariorossi") && u.getEmail().equals("mariorossi@gmail.com") && u.isPasswordValid("Password123@"));
 	}
 	
 	private void clearTable() {

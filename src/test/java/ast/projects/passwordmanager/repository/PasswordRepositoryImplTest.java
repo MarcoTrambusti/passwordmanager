@@ -98,7 +98,7 @@ public class PasswordRepositoryImplTest {
 	@Test
 	public void testSavePasswordWhenAlreadyPresentForThatSite() throws InvalidKeyException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-		 addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
+		addTestPasswordToDatabase("test", "mariorossi", "Prova123!", user);
 		Password password = new Password("test", "mariorossi", "Prova123!", user.getId(), user.getPassword());
 		assertThrows(ConstraintViolationException.class, () -> passwordRepository.save(password));
 		session = passwordRepository.getCurrentSession();

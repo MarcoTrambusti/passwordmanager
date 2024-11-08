@@ -107,6 +107,7 @@ public class UserControllerTest {
 		userController.login("mariorossis", "Password123@");
 		verify(userRepository).findByUsername("mariorossis");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -115,9 +116,9 @@ public class UserControllerTest {
 		when(userRepository.findByUsername("mariorossi")).thenReturn(user);
 		
 		userController.login("mariorossi", "wrongpassword");
-		
 		verify(userRepository).findByUsername("mariorossi");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -125,9 +126,9 @@ public class UserControllerTest {
 		when(userRepository.findByUsername("mariorossis")).thenReturn(null);
 		
 		userController.login("mariorossis", "wrongpassword");
-		
 		verify(userRepository).findByUsername("mariorossis");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -145,9 +146,9 @@ public class UserControllerTest {
 		when(userRepository.findByEmail("wrong@gmail.com")).thenReturn(null);
 		
 		userController.login("wrong@gmail.com", "Password123@");
-		
 		verify(userRepository).findByEmail("wrong@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -158,6 +159,7 @@ public class UserControllerTest {
 		userController.login("mariorossi@gmail.com", "wrongpassword");
 		verify(userRepository).findByEmail("mariorossi@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test
@@ -167,6 +169,7 @@ public class UserControllerTest {
 		userController.login("wrong@gmail.com", "wrongpassword");
 		verify(userRepository).findByEmail("wrong@gmail.com");
 		verify(view).showError("username/email o password errati!", null, "errorLabel_login");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 	
 	@Test 
@@ -187,5 +190,6 @@ public class UserControllerTest {
 		userController.reloadUser(1);
 		verify(userRepository).findById(1);
 		verify(view).showError("Errore durante il recupero dell'utente", null, "errorLabel_main");
+		verifyNoMoreInteractions(ignoreStubs(userRepository));
 	}
 }

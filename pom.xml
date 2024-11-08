@@ -433,7 +433,7 @@
 											<name>app-network</name>
 										</network>
 										<wait>
-											<log>Hello World!</log>
+											<log>App Started Successfully</log>
 											<time>10000</time>
 										</wait>
 										<dependsOn>

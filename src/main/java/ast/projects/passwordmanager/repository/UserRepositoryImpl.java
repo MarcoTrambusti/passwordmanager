@@ -17,10 +17,18 @@ public class UserRepositoryImpl implements UserRepository {
 		this.sessionFactory = sessionFactory;
 	}
 
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	Session getCurrentSession() {
+		return currentSession;
+	}
+	
 	@Override
 	public void save(User user) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		try {
 			session.beginTransaction();
 			session.save(user);
@@ -33,18 +41,10 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
-	public SessionFactory getSessionFactory() {
-		return this.sessionFactory;
-	}
-
-	Session getCurrentSession() {
-		return currentSession;
-	}
-
 	@Override
 	public User findById(int id) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.id = :user_id", User.class);
@@ -62,7 +62,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByUsername(String username) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.username = :username", User.class);
@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public List<User> findAll() {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		Query<User> query = session.createQuery("FROM User", User.class);
 		List<User> results = query.list();
 		session.close();
@@ -91,7 +91,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public void delete(User user) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		try {
 			session.beginTransaction();
 			session.delete(user);
@@ -107,7 +107,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByEmail(String email) {
 		Session session = getSessionFactory().openSession();
-		currentSession = session;
+		this.currentSession = session;
 		User result;
 		try {
 			Query<User> query = session.createQuery("FROM User u WHERE u.email = :email", User.class);

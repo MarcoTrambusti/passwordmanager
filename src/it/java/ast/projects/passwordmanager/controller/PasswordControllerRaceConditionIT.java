@@ -76,10 +76,12 @@ public class PasswordControllerRaceConditionIT {
 
 	@After
 	public void releaseMocks() throws Exception {
+		if (factory != null) {
+			factory.close();
+		}
 		if (mariaDB != null && mariaDB.isRunning()) {
 			mariaDB.close();
 		}
-		factory.close();
 		closeable.close();
 	}
 
